@@ -38,4 +38,4 @@ checkWidth()
 
 const root = document.body
 
-m.route(root, `/${Model.state.symbol}`, routes(Model))
+m.route(root, `/beers`, routes(Model))

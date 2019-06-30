@@ -1,119 +1,60 @@
 import m from "mithril"
-import { getStocks, search, filterBy } from "./helpers.js"
+import { getBeers, filterBy } from "./helpers.js"
 
 const Errors = ({ attrs: { mdl } }) => {
   let err = mdl.state.errors.message
   return {
-    view: () => m("code.error", err)
+    view: () => m("code.error", err),
   }
 }
 
-const SymbolList = () => {
-  return {
-    view: ({ attrs: { symbols, selectSymbol } }) =>
-      m(
-        ".symbolsList",
-        symbols.map(({ symbol, name }) =>
-          m(".symbol", { onclick: (e) => selectSymbol(symbol) }, name)
-        )
-      )
-  }
-}
+// const Chart = () => {
+//   const toPlot = (dom, mdl) =>
+//     Plotly.newPlot(dom, mdl.state.data, {
+//       title: mdl.state.symbol,
+//     })
 
-const Search = ({ attrs: { mdl } }) => {
-  let symbol = mdl.state.symbol
-  let symbols = []
-  let showList = false
+//   return {
+//     oncreate: ({ dom, attrs: { mdl } }) => toPlot(dom, mdl),
+//     view: () => m(".chart", { id: "chart" }),
+//   }
+// }
 
-  const onError = (mdl) => (error) => {
-    mdl.state.errors = error
-    mdl.state.symbols = undefined
-  }
-
-  const onSuccess = (mdl) => (data) => {
-    mdl.state.symbols = data
-    mdl.state.errors = undefined
-  }
-
-  const selectSymbol = (value) => {
-    showList = false
-    symbol = value
-    mdl.state.symbol = symbol
-    showList = false
-    m.route.set(`/${mdl.state.symbol}`, { replace: true })
-  }
+const Beer = ({ attrs: { name, img } }) => {
+  console.log(name, img)
 
   return {
-    oninit: ({ attrs: { mdl } }) =>
-      search(mdl).then(onSuccess(mdl), onError(mdl)),
-    view: ({ attrs: { mdl } }) =>
-      m(".searchContainer", [
-        m(".inputContainer", [
-          m("input[type=text].input", {
-            value: symbol,
-            oninput: (e) => {
-              showList = true
-              symbol = e.target.value.toUpperCase()
-              symbols = filterBy(mdl.state.symbols, symbol)
-            }
-          }),
-          m(
-            "button.btn",
-            {
-              onclick: () => {
-                mdl.state.symbol = symbol
-                showList = false
-                m.route.set(`/${mdl.state.symbol}`)
-              }
-            },
-            "Get Stocks"
-          )
-        ]),
-        showList && m(SymbolList, { symbols, selectSymbol })
-      ])
+    view: ({ attrs: { name, img } }) => m(".beer", [m("img", { src: img })]),
   }
 }
 
-const Chart = () => {
-  const toPlot = (dom, mdl) =>
-    Plotly.newPlot(dom, mdl.state.data, {
-      title: mdl.state.symbol
-    })
-
-  return {
-    oncreate: ({ dom, attrs: { mdl } }) => toPlot(dom, mdl),
-    view: () => m(".chart", { id: "chart" })
-  }
-}
-
-const App = (mdl) => {
-  const onError = (errors) => {
+const BeerList = ({ attrs: { mdl } }) => {
+  const onError = errors => {
     mdl.state.errors = errors
     mdl.state.data = undefined
   }
 
-  const onSuccess = (data) => {
+  const onSuccess = data => {
     mdl.state.errors = undefined
     mdl.state.data = data
   }
 
   return {
-    oninit: ({ attrs: { key } }) => {
-      mdl.state.symbol = key
-      getStocks(mdl).then(onSuccess, onError)
-    },
-    view: () =>
+    oninit: ({ attrs: { mdl } }) => getBeers(mdl).then(onSuccess, onError),
+    view: ({ attrs: { mdl } }) =>
       m(
-        ".app",
-        m(Search, { mdl }),
-        mdl.state.data && m(Chart, { mdl }),
+        ".beer-list",
+        mdl.state.data &&
+          mdl.state.data.map(([name, img]) => m(Beer, { name, img })),
         mdl.state.errors && m(Errors, { mdl })
-      )
+      ),
   }
 }
 
-export const routes = (mdl) => {
+export const routes = mdl => {
   return {
-    "/:key": App(mdl)
+    "/beers": {
+      render: () => m(BeerList, { mdl }),
+    },
   }
 }

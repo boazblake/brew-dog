@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mithril": "^1.1.6",
+    "mithril": "2.0.0-rc.8",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
@@ -20,6 +20,6 @@
     "eslint": "^5.16.0",
     "esm": "^3.2.25",
     "ospec": "^3.1.0",
-    "sass": "^1.20.3"
+    "sass": "^1.22.4"
   }
 }

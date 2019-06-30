@@ -2,59 +2,17 @@
   box-sizing: border-box;
 }
 
-.inputContainer {
-  width: 100%;
+.beer-list {
   display: flex;
-  flex-flow: row;
+  flex-flow: wrap-reverse;
+  width: 350px;
+  align-content: center;
+  justify-content: flex-end;
 
-  .input {
-    line-height: 3em;
-    text-transform: uppercase;
-    flex-basis: 80%;
-    font-size: 18px;
+  img {
+    height: 150px;
+    padding: 4px;
   }
-
-  .btn {
-    flex-basis: 20%;
-    font-size: 18px;
-    cursor: pointer;
-    color: #f1c40f;
-    background: #34495e;
-
-    &:hover {
-      background: #f1c40f;
-      color: #34495e;
-      transition: all 0.4s;
-    }
-  }
-}
-
-.symbolsList {
-  display: flex;
-  flex-flow: column;
-  height: 85vh;
-  overflow: scroll;
-
-  .symbol {
-    padding: 10px;
-    line-height: 3em;
-    font-size: 18px;
-    width: 100%;
-    cursor: pointer;
-    color: #f1c40f;
-    background: #34495e;
-
-    &:hover {
-      background: #f1c40f;
-      color: #34495e;
-      transition: all 0.4s;
-    }
-  }
-}
-
-.chart {
-  width: 90vw;
-  margin: 0 auto;
 }
 
 .error {

@@ -1,12 +1,12 @@
 dependencies:
-  mithril: 1.1.6
+  mithril: 2.0.0-rc.8
   ramda: 0.26.1
 devDependencies:
   cssnano: 4.1.10
   eslint: 5.16.0
   esm: 3.2.25
   ospec: 3.1.0
-  sass: 1.22.1
+  sass: 1.22.4
 lockfileVersion: 5.1
 packages:
   /@babel/code-frame/7.0.0:
@@ -81,13 +81,13 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==
-  /anymatch/3.0.2:
+  /anymatch/3.0.3:
     dependencies:
       normalize-path: 3.0.0
       picomatch: 2.0.7
     dev: true
     resolution:
-      integrity: sha512-rUe9SxpRQlVg4EM8It7JMNWWYHAirTPpbTuvaSKybb5IejNgWB3PGBBX9rrPKDx2pM/p3Wh+7+ASaWRyyAbxmQ==
+      integrity: sha512-c6IvoeBECQlMVuYUjSwimnhmztImpErfxJzWZhIQinIvQWoGOnB0dLIgifbPHQt5heS6mNlaZG16f06H3C8t1g==
   /argparse/1.0.10:
     dependencies:
       sprintf-js: 1.0.3
@@ -100,10 +100,6 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-+Ryf6g3BKoRc7jfp7ad8tM4TtMiaWvbF/1/sQcZPkkS7ag3D5nMBCe2UfOTONtAkaG0tO0ij3C5Lwmf1EiyjHg==
-  /async-each/1.0.3:
-    dev: true
-    resolution:
-      integrity: sha512-z/WhQ5FPySLdvREByI2vZiTWwCnF0moMJ1hK9YQwDTHKh6I7/uSckMetoRGb5UBZPC1z0jlw+n/XCgjeH7y1AQ==
   /balanced-match/1.0.0:
     dev: true
     resolution:
@@ -197,23 +193,22 @@ packages:
     dev: true
     resolution:
       integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==
-  /chokidar/3.0.1:
+  /chokidar/3.0.2:
     dependencies:
-      anymatch: 3.0.2
-      async-each: 1.0.3
+      anymatch: 3.0.3
       braces: 3.0.2
       glob-parent: 5.0.0
       is-binary-path: 2.1.0
       is-glob: 4.0.1
       normalize-path: 3.0.0
-      readdirp: 3.0.2
+      readdirp: 3.1.1
     dev: true
     engines:
       node: '>= 8'
     optionalDependencies:
       fsevents: 2.0.7
     resolution:
-      integrity: sha512-2ww34sJWehnbpV0Q4k4V5Hh7juo7po6z7LUWkcIQnSGN1lHOL8GGtLtfwabKvLFQw/hbSUQ0u6V7OgGYgBzlkQ==
+      integrity: sha512-c4PR2egjNjI1um6bamCQ6bUNPDiyofNQruHvKgHQ4gDUP/ITSVSzNsiI5OWtHOsX323i5ha/kk4YmOZ1Ktg7KA==
   /cli-cursor/2.1.0:
     dependencies:
       restore-cursor: 2.0.0
@@ -1048,11 +1043,11 @@ packages:
     dev: true
     resolution:
       integrity: sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0=
-  /mithril/1.1.6:
+  /mithril/2.0.0-rc.8:
     dev: false
     hasBin: true
     resolution:
-      integrity: sha512-fWcUrQTCqu8M916rj1MFGlHaPh65rznPu6U/N2U9g81H89klDCIptSK5bnkNkC+jyi3sJIXjyGhSQjUnR8jzZA==
+      integrity: sha512-7XvrXBW/b/NfSAP6VdMW+g9qq6tc2Pq+DPesVXsbo25W3EBfHFFDHIMk3mQV8UcBpA2qV4xXYplel4JClB7BXA==
   /mkdirp/0.5.1:
     dependencies:
       minimist: 0.0.8
@@ -1541,14 +1536,14 @@ packages:
     dev: false
     resolution:
       integrity: sha512-hLWjpy7EnsDBb0p+Z3B7rPi3GDeRG5ZtiI33kJhTt+ORCd38AbAIjB/9zRIUoeTbE/AVX5ZkU7m6bznsvrf8eQ==
-  /readdirp/3.0.2:
+  /readdirp/3.1.1:
     dependencies:
       picomatch: 2.0.7
     dev: true
     engines:
       node: '>= 8'
     resolution:
-      integrity: sha512-LbyJYv48eywrhOlScq16H/VkCiGKGPC2TpOdZCJ7QXnYEjn3NN/Oblh8QEU3vqfSRBB7OGvh5x45NKiVeNujIQ==
+      integrity: sha512-XXdSXZrQuvqoETj50+JAitxz1UPdt5dupjT6T5nVB+WvjMv2XKYj+s7hPeAVCXvmJrL36O4YYyWlIC3an2ePiQ==
   /regexpp/2.0.1:
     dev: true
     engines:
@@ -1611,15 +1606,15 @@ packages:
     dev: true
     resolution:
       integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
-  /sass/1.22.1:
+  /sass/1.22.4:
     dependencies:
-      chokidar: 3.0.1
+      chokidar: 3.0.2
     dev: true
     engines:
       node: '>=0.11.8'
     hasBin: true
     resolution:
-      integrity: sha512-VsWrNdfIzCLbD2TO2bq9tCaUzEE0UUSGtP3r9IhHi8ypAPCb3FOVP99kMRil+ZROEcTnKReZcQP9vk6ArV2eLw==
+      integrity: sha512-gQFNzYKlAn9ee6Qy1UhTxy0G24QR5BWP61AN61jAEqwauzVCP5qjUveO/WkIj72po0ljncdVXo96EQR+ig2lRw==
   /sax/1.2.4:
     dev: true
     resolution:
@@ -1879,7 +1874,7 @@ specifiers:
   cssnano: ^4.1.10
   eslint: ^5.16.0
   esm: ^3.2.25
-  mithril: ^1.1.6
+  mithril: 2.0.0-rc.8
   ospec: ^3.1.0
   ramda: ^0.26.1
-  sass: ^1.20.3
+  sass: ^1.22.4
