@@ -2355,6 +2355,7 @@ var pagination = {
 };
 var comparisonBeerList = {};
 var compareSelections = false;
+var compareSelectionsBy = "abv";
 var state = {
   profile: "",
   isLoading: false,
@@ -2418,6 +2419,7 @@ var Model = {
   pagination: pagination,
   comparisonBeerList: comparisonBeerList,
   compareSelections: compareSelections,
+  compareSelectionsBy: compareSelectionsBy,
   auth: false
 };
 var _default = Model;
@@ -2439,7 +2441,10 @@ var MiniBeer = function MiniBeer() {
     view: function view(_ref) {
       var _ref$attrs = _ref.attrs,
           mdl = _ref$attrs.mdl,
-          name = _ref$attrs.name,
+          abv = _ref$attrs.abv,
+          ibu = _ref$attrs.ibu,
+          ph = _ref$attrs.ph,
+          srm = _ref$attrs.srm,
           img = _ref$attrs.img,
           key = _ref$attrs.key;
       return (0, _mithril.default)(".mini-beer", [[(0, _mithril.default)("input[type=checkbox]", {
@@ -2453,7 +2458,7 @@ var MiniBeer = function MiniBeer() {
         for: "checkbox-".concat(key)
       }, (0, _mithril.default)("img.img", {
         src: img
-      }))],,]);
+      })), (0, _mithril.default)(".footer", [(0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "ABV: ", abv, "%"), (0, _mithril.default)("code.cell.info", "IBU: ", ibu)]), (0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "pH: ", ph), (0, _mithril.default)("code.cell.info", "SRM: ", srm)])])],,]);
     }
   };
 };
@@ -2464,12 +2469,18 @@ var BeerList = {
         mdl = _ref2$attrs.mdl,
         beers = _ref2$attrs.beers;
     return (0, _mithril.default)(".container", beers.map(function (_ref3) {
-      var name = _ref3.name,
+      var abv = _ref3.abv,
+          ibu = _ref3.ibu,
+          ph = _ref3.ph,
+          srm = _ref3.srm,
           image_url = _ref3.image_url,
           id = _ref3.id;
       return (0, _mithril.default)(MiniBeer, {
         mdl: mdl,
-        name: name,
+        abv: abv,
+        ibu: ibu,
+        ph: ph,
+        srm: srm,
         img: image_url,
         key: id
       });
@@ -20005,6 +20016,20 @@ var getBeers = function getBeers(mdl) {
 };
 
 exports.getBeers = getBeers;
+var srmScale = {
+  2: "",
+  3: "",
+  4: "",
+  6: "",
+  9: "",
+  12: "",
+  15: "",
+  18: "",
+  20: "",
+  24: "",
+  30: "",
+  40: ""
+};
 },{"ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beers/index.js":[function(require,module,exports) {
 "use strict";
 
@@ -20033,12 +20058,25 @@ var Actions = {
         mdl.comparisonBeerList = {};
         mdl.compareSelections = false;
       }
-    }, "Back to List") : (0, _mithril.default)("button.btn", {
-      disabled: (0, _ramda.isEmpty)(mdl.comparisonBeerList),
+    }, "Back to List") : [(0, _mithril.default)("button.btn", {
+      disabled: !Object.values(mdl.comparisonBeerList).includes(true),
       onclick: function onclick() {
         return mdl.compareSelections = true;
       }
-    }, "Compare Selected");
+    }, "Compare Selected"), (0, _mithril.default)("select.select", {
+      onchange: function onchange(e) {
+        return mdl.compareSelectionsBy = e.target.value;
+      },
+      value: mdl.compareSelectionsBy
+    }, [(0, _mithril.default)("option.option", {
+      value: "abv"
+    }, "abv"), (0, _mithril.default)("option.option", {
+      value: "ibu"
+    }, "ibu"), (0, _mithril.default)("option.option", {
+      value: "ph"
+    }, "pH"), (0, _mithril.default)("option.option", {
+      value: "srm"
+    }, "srm")])];
   }
 };
 
@@ -20068,24 +20106,29 @@ var byComparison = function byComparison(ids) {
   };
 };
 
-var Beers = {
-  oninit: function oninit(_ref2) {
-    var mdl = _ref2.attrs.mdl;
-    return (0, _model.getBeers)(mdl)(mdl.pagination).then(onSuccess(mdl), onError(mdl));
-  },
-  view: function view(_ref3) {
-    var mdl = _ref3.attrs.mdl;
-    return mdl.state.data && [(0, _mithril.default)(Actions, {
-      mdl: mdl
-    }), (0, _mithril.default)(".beers", [mdl.compareSelections ? (0, _mithril.default)(_CompareBeers.default, {
-      mdl: mdl,
-      beers: mdl.state.data.filter(byComparison(mdl.comparisonBeerList))
-    }) : (0, _mithril.default)(_BeerList.default, {
-      mdl: mdl,
-      beers: mdl.state.data
-    })])];
-  }
+var Beers = function Beers(_ref2) {
+  var mdl = _ref2.attrs.mdl;
+  (0, _model.getBeers)(mdl)(mdl.pagination).then(onSuccess(mdl), onError(mdl));
+  return {
+    view: function view(_ref3) {
+      var mdl = _ref3.attrs.mdl;
+
+      if (mdl.state.data) {
+        var sortedByProp = (0, _ramda.sortBy)((0, _ramda.prop)(mdl.compareSelectionsBy));
+        return [(0, _mithril.default)(Actions, {
+          mdl: mdl
+        }), (0, _mithril.default)(".beers", [mdl.compareSelections ? (0, _mithril.default)(_CompareBeers.default, {
+          mdl: mdl,
+          beers: mdl.state.data.filter(byComparison(mdl.comparisonBeerList))
+        }) : (0, _mithril.default)(_BeerList.default, {
+          mdl: mdl,
+          beers: sortedByProp(mdl.state.data)
+        })])];
+      }
+    }
+  };
 };
+
 var _default = Beers; // const Chart = () => {
 //   const toPlot = (dom, mdl) =>
 //     Plotly.newPlot(dom, mdl.state.data, {
@@ -20321,7 +20364,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64942" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51988" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

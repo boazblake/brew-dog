@@ -1,5 +1,6 @@
 :root {
-  --main-color: #00afdb;
+  --main-color:rgba(0, 175, 219, 1) ;
+  --main-lighter-color:rgba(0, 175, 219, 0.5) ;
 }
 
 
@@ -7,15 +8,13 @@
   box-sizing: border-box;
 }
 
-
 .container {
   display: flex;
   flex-flow: wrap;
-  align-content: center;
-  justify-content: space-evenly;
   width: 90vw;
   margin: 0 auto;
 }
+
 
 .compare-beers {
   flex-flow: row;
@@ -34,6 +33,7 @@
     .cell {
       min-width: 200px;
       max-height: 200px;
+      max-width: 300px;
       padding: 2px;
 
       .img {
@@ -78,6 +78,17 @@
     left: 70px;
     top: 20px;
     height: 150px;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 0;
+    left: 10px;
+    width: 167px;
+    margin: 0 auto;
+    color: white;
+    background: var(--main-color);
+    padding: 10px;
   }
 }
 
@@ -132,6 +143,37 @@ input[type=checkbox]:disabled + label:before {
 
 input[type=checkbox]:checked:disabled + label:before {
   transform: scale(1);
-  background-color: var(--main-color);;
-  border-color: var(--main-color);;
+  background-color: var(--main-lighter-color);;
+  border-color: var(--main-lighter-color);;
+}
+
+.btn{
+  height: 2em;
+  border: none;
+  color: white;
+  background: var(--main-color);
+
+  &:hover{
+    cursor: pointer;
+    background: var(--main-lighter-color);
+  }
+
+  &:disabled {
+    background: #aaa;
+  }
+}
+
+.select {
+  height: 2em;
+  width: 200px;
+  border: none;
+  appearance: none;
+  border-bottom: 1px solid var(--main-color);
+  color: var(--main-color);
+  margin: 6px;
+  padding: 4px;
+
+  &:hover{
+    color: var(--main-lighter-color);
+  }
 }

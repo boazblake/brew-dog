@@ -15,6 +15,7 @@ const pagination = {
 
 const comparisonBeerList = {}
 const compareSelections = false
+const compareSelectionsBy = "abv"
 
 const state = {
   profile: "",
@@ -70,6 +71,7 @@ const Model = {
   pagination,
   comparisonBeerList,
   compareSelections,
+  compareSelectionsBy,
   auth: false,
 }
 

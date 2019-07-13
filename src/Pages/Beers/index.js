@@ -2,7 +2,7 @@ import m from "mithril"
 import BeerList from "./BeerList.js"
 import CompareBeers from "./CompareBeers.js"
 import { getBeers, filterBy } from "./model.js"
-import { head, propEq, isEmpty } from "ramda"
+import { head, sortBy, prop, propEq, isEmpty } from "ramda"
 
 const Actions = {
   view: ({ attrs: { mdl } }) =>
@@ -17,14 +17,29 @@ const Actions = {
           },
           "Back to List"
         )
-      : m(
-          "button.btn",
-          {
-            disabled: isEmpty(mdl.comparisonBeerList),
-            onclick: () => (mdl.compareSelections = true),
-          },
-          "Compare Selected"
-        ),
+      : [
+          m(
+            "button.btn",
+            {
+              disabled: !Object.values(mdl.comparisonBeerList).includes(true),
+              onclick: () => (mdl.compareSelections = true),
+            },
+            "Compare Selected"
+          ),
+          m(
+            "select.select",
+            {
+              onchange: e => (mdl.compareSelectionsBy = e.target.value),
+              value: mdl.compareSelectionsBy,
+            },
+            [
+              m("option.option", { value: "abv" }, "abv"),
+              m("option.option", { value: "ibu" }, "ibu"),
+              m("option.option", { value: "ph" }, "pH"),
+              m("option.option", { value: "srm" }, "srm"),
+            ]
+          ),
+        ],
 }
 
 const onError = mdl => errors => {
@@ -41,23 +56,32 @@ const parseIds = ids => Object.keys(ids).map(id => parseInt(id))
 
 const byComparison = ids => beer => parseIds(ids).includes(beer.id)
 
-const Beers = {
-  oninit: ({ attrs: { mdl } }) =>
-    getBeers(mdl)(mdl.pagination).then(onSuccess(mdl), onError(mdl)),
-  view: ({ attrs: { mdl } }) =>
-    mdl.state.data && [
-      m(Actions, { mdl }),
-      m(".beers", [
-        mdl.compareSelections
-          ? m(CompareBeers, {
-              mdl,
-              beers: mdl.state.data.filter(
-                byComparison(mdl.comparisonBeerList)
-              ),
-            })
-          : m(BeerList, { mdl, beers: mdl.state.data }),
-      ]),
-    ],
+const Beers = ({ attrs: { mdl } }) => {
+  getBeers(mdl)(mdl.pagination).then(onSuccess(mdl), onError(mdl))
+
+  return {
+    view: ({ attrs: { mdl } }) => {
+      if (mdl.state.data) {
+        const sortedByProp = sortBy(prop(mdl.compareSelectionsBy))
+        return [
+          m(Actions, { mdl }),
+          m(".beers", [
+            mdl.compareSelections
+              ? m(CompareBeers, {
+                  mdl,
+                  beers: mdl.state.data.filter(
+                    byComparison(mdl.comparisonBeerList)
+                  ),
+                })
+              : m(BeerList, {
+                  mdl,
+                  beers: sortedByProp(mdl.state.data),
+                }),
+          ]),
+        ]
+      }
+    },
+  }
 }
 
 export default Beers
