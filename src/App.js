@@ -1,5 +1,5 @@
 import m from "mithril"
-import { getBeers, filterBy } from "./helpers.js"
+import Beers from "./Pages/Beers/index.js"
 
 const Errors = ({ attrs: { mdl } }) => {
   let err = mdl.state.errors.message
@@ -8,53 +8,36 @@ const Errors = ({ attrs: { mdl } }) => {
   }
 }
 
-// const Chart = () => {
-//   const toPlot = (dom, mdl) =>
-//     Plotly.newPlot(dom, mdl.state.data, {
-//       title: mdl.state.symbol,
-//     })
-
-//   return {
-//     oncreate: ({ dom, attrs: { mdl } }) => toPlot(dom, mdl),
-//     view: () => m(".chart", { id: "chart" }),
-//   }
-// }
-
-const Beer = ({ attrs: { name, img } }) => {
-  console.log(name, img)
-
-  return {
-    view: ({ attrs: { name, img } }) => m(".beer", [m("img", { src: img })]),
-  }
+const Header = {
+  view: ({ attrs: { mdl } }) => m(".header", []),
 }
 
-const BeerList = ({ attrs: { mdl } }) => {
-  const onError = errors => {
-    mdl.state.errors = errors
-    mdl.state.data = undefined
-  }
-
-  const onSuccess = data => {
-    mdl.state.errors = undefined
-    mdl.state.data = data
-  }
-
-  return {
-    oninit: ({ attrs: { mdl } }) => getBeers(mdl).then(onSuccess, onError),
-    view: ({ attrs: { mdl } }) =>
-      m(
-        ".beer-list",
-        mdl.state.data &&
-          mdl.state.data.map(([name, img]) => m(Beer, { name, img })),
-        mdl.state.errors && m(Errors, { mdl })
-      ),
-  }
+const Body = {
+  view: ({ attrs: { mdl }, children }) => [
+    children,
+    mdl.state.errors && m(Errors, { mdl }),
+  ],
 }
 
-export const routes = mdl => {
+const Layout = {
+  view: ({ children, attrs: { mdl } }) =>
+    m(".app", [m(Header, { mdl }), m(Body, { mdl }, children)]),
+}
+
+const App = mdl => {
   return {
+    // "/": {
+    //   onmatch: (a, b, c) =>
+    //     mdl.auth ? m.route.set("/beers") : m.route.set("/nonbeers"),
+    // },
     "/beers": {
-      render: () => m(BeerList, { mdl }),
+      render: () => m(Layout, { mdl }, m(Beers, { mdl })),
     },
+    // "/nonbeers": {
+    //   render: () => m(Layout, { mdl }, m(Beers, { mdl })),
+    // },
+    // "/:404": m(Layout, { mdl }, m(Errors, { mdl })),
   }
 }
+
+export default App

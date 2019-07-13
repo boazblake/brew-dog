@@ -1,12 +1,20 @@
 import m from "mithril"
-import { Stream } from "stream"
+import Stream from "mithril-stream"
 
 const log = m => v => {
   console.log(m, v)
   return v
 }
 
-const url = () => `https://api.punkapi.com/v2/beers`
+const url = (id = "") => `https://api.punkapi.com/v2/beers/${id}`
+
+const pagination = {
+  page: 1,
+  per_page: 30,
+}
+
+const comparisonBeerList = {}
+const compareSelections = false
 
 const state = {
   profile: "",
@@ -52,7 +60,17 @@ const xhrProgress = {
   },
 }
 
-const http = url => m.request(url, { xhrProgress })
-const Model = { http, log, url, state }
+const http = (url, params) => m.request({ url, params, ...{ xhrProgress } })
+
+const Model = {
+  http,
+  log,
+  url,
+  state,
+  pagination,
+  comparisonBeerList,
+  compareSelections,
+  auth: false,
+}
 
 export default Model

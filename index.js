@@ -1,7 +1,7 @@
 import m from "mithril"
 
 import Model from "./src/model.js"
-import { routes } from "./src/App.js"
+import App from "./src/App.js"
 
 if (module.hot) {
   module.hot.accept()
@@ -38,4 +38,4 @@ checkWidth()
 
 const root = document.body
 
-m.route(root, `/beers`, routes(Model))
+m.route(root, "/beers", App(Model))
