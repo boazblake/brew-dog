@@ -1,4 +1,5 @@
 @charset "UTF-8";
+@import url("https://fonts.googleapis.com/css?family=Montserrat&display=swap");
 :root {
   --main-color:rgba(0, 175, 219, 1) ;
   --main-lighter-color:rgba(0, 175, 219, 0.5) ;
@@ -6,6 +7,7 @@
 
 * {
   box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
 }
 
 .container {
@@ -16,7 +18,7 @@
 }
 
 .compare-beers {
-  flex-flow: row;
+  flex-flow: wrap;
   justify-content: flex-start;
   align-content: flex-start;
 }
@@ -24,9 +26,10 @@
   display: flex;
   flex-flow: column;
   border: 1px dashed var(--main-color);
-  margin-top: 10px;
+  margin: 10px;
   padding: 2px;
-  height: 90vh;
+  width: 300px;
+  max-width: 300px;
 }
 .compare-beers .beer-profile .cell {
   min-width: 200px;
@@ -57,22 +60,22 @@
   justify-content: space-between;
 }
 
-.mini-beer {
+.beer-card {
   position: relative;
   padding: 4px;
   border: none;
 }
-.mini-beer:hover {
+.beer-card:hover {
   cursor: pointer;
   border: 1px var(--main-color);
 }
-.mini-beer .img {
+.beer-card .img {
   position: absolute;
   left: 70px;
   top: 20px;
   height: 150px;
 }
-.mini-beer .footer {
+.beer-card .footer {
   position: absolute;
   bottom: 0;
   left: 10px;
@@ -138,7 +141,7 @@ input[type=checkbox]:checked:disabled + label:before {
 }
 
 .btn {
-  height: 2em;
+  height: 2.5em;
   border: none;
   color: white;
   background: var(--main-color);
@@ -152,17 +155,61 @@ input[type=checkbox]:checked:disabled + label:before {
 }
 
 .select {
-  height: 2em;
+  height: 2.5em;
   width: 200px;
   border: none;
   appearance: none;
   border-bottom: 1px solid var(--main-color);
-  color: var(--main-color);
   margin: 6px;
   padding: 4px;
+  background: var(--main-color);
+  color: white;
 }
 .select:hover {
-  color: var(--main-lighter-color);
+  background: white;
+  color: var(--main-color);
+}
+
+.link {
+  line-height: 2em;
+  color: var(--main-color);
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 6px;
+}
+.link:hover {
+  border-bottom: 1px dashed var(--main-color);
+}
+
+.input {
+  line-height: 2.3em;
+  padding: 0 6px;
+}
+
+progress {
+  transform: rotate(180deg);
+}
+
+.group {
+  width: 100px;
+}
+
+.name {
+  padding: 3px;
+  margin: 3px;
+  font-weight: bold;
+}
+
+.tagline {
+  quotes: "“" "”" "‘" "’";
+  text-align: center;
+}
+.tagline::before {
+  content: open-quote;
+}
+.tagline::after {
+  content: close-quote;
 }
 
 /*# sourceMappingURL=/brew-dog.e31bb0bc.css.map */

@@ -2,9 +2,9 @@ import m from "mithril"
 import Beers from "./Pages/Beers/index.js"
 
 const Errors = ({ attrs: { mdl } }) => {
-  let err = mdl.state.errors.message
   return {
-    view: () => m("code.error", err),
+    view: () =>
+      mdl.state.errors.map((err, key) => m("code.error", { key }, err)),
   }
 }
 
@@ -26,17 +26,9 @@ const Layout = {
 
 const App = mdl => {
   return {
-    // "/": {
-    //   onmatch: (a, b, c) =>
-    //     mdl.auth ? m.route.set("/beers") : m.route.set("/nonbeers"),
-    // },
     "/beers": {
       render: () => m(Layout, { mdl }, m(Beers, { mdl })),
     },
-    // "/nonbeers": {
-    //   render: () => m(Layout, { mdl }, m(Beers, { mdl })),
-    // },
-    // "/:404": m(Layout, { mdl }, m(Errors, { mdl })),
   }
 }
 

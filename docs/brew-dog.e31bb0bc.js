@@ -2353,9 +2353,9 @@ var pagination = {
   page: 1,
   per_page: 30
 };
-var comparisonBeerList = {};
-var compareSelections = false;
-var compareSelectionsBy = "abv";
+var beerList = {};
+var selections = false;
+var selectionsBy = "abv";
 var state = {
   profile: "",
   isLoading: false,
@@ -2364,7 +2364,8 @@ var state = {
     value: 0
   },
   data: undefined,
-  errors: undefined
+  errors: undefined,
+  view: "cards"
 };
 
 function onProgress(e) {
@@ -2417,14 +2418,15 @@ var Model = {
   url: url,
   state: state,
   pagination: pagination,
-  comparisonBeerList: comparisonBeerList,
-  compareSelections: compareSelections,
-  compareSelectionsBy: compareSelectionsBy,
-  auth: false
+  comparison: {
+    beerList: beerList,
+    selections: selections,
+    selectionsBy: selectionsBy
+  }
 };
 var _default = Model;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","mithril-stream":"node_modules/mithril-stream/stream.mjs"}],"src/Pages/Beers/BeerList.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","mithril-stream":"node_modules/mithril-stream/stream.mjs"}],"src/Components/Pagination/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2436,58 +2438,231 @@ var _mithril = _interopRequireDefault(require("mithril"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var MiniBeer = function MiniBeer() {
+var Pagination = function Pagination(_ref) {
+  var _ref$attrs = _ref.attrs,
+      mdl = _ref$attrs.mdl,
+      load = _ref$attrs.load;
+
+  var pageBack = function pageBack(mdl) {
+    mdl.pagination.page == 1 ? mdl.pagination.page : mdl.pagination.page--;
+    load();
+  };
+
+  var pageForward = function pageForward(mdl) {
+    mdl.state.data.length == 0 ? mdl.pagination.page : mdl.pagination.page++;
+    load();
+  };
+
   return {
-    view: function view(_ref) {
-      var _ref$attrs = _ref.attrs,
-          mdl = _ref$attrs.mdl,
-          abv = _ref$attrs.abv,
-          ibu = _ref$attrs.ibu,
-          ph = _ref$attrs.ph,
-          srm = _ref$attrs.srm,
-          img = _ref$attrs.img,
-          key = _ref$attrs.key;
-      return (0, _mithril.default)(".mini-beer", [[(0, _mithril.default)("input[type=checkbox]", {
-        id: "checkbox-".concat(key),
-        name: "checkbox-".concat(key),
+    view: function view(_ref2) {
+      var mdl = _ref2.attrs.mdl;
+      return [(0, _mithril.default)("button.btn", {
+        disabled: mdl.pagination.page == 1,
         onclick: function onclick() {
-          return mdl.comparisonBeerList[key] = !mdl.comparisonBeerList[key];
-        },
-        checked: mdl.comparisonBeerList[key]
-      }), (0, _mithril.default)("label.label", {
-        for: "checkbox-".concat(key)
-      }, (0, _mithril.default)("img.img", {
-        src: img
-      })), (0, _mithril.default)(".footer", [(0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "ABV: ", abv, "%"), (0, _mithril.default)("code.cell.info", "IBU: ", ibu)]), (0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "pH: ", ph), (0, _mithril.default)("code.cell.info", "SRM: ", srm)])])],,]);
+          return pageBack(mdl);
+        }
+      }, "Prev"), (0, _mithril.default)("input.input[type=number]", {
+        value: mdl.pagination.per_page,
+        min: 0,
+        max: 80,
+        onchange: function onchange(e) {
+          return mdl.pagination.per_page = e.target.value;
+        }
+      }), (0, _mithril.default)("button.btn", {
+        disabled: mdl.state.data.length == 0,
+        onclick: function onclick() {
+          return pageForward(mdl);
+        }
+      }, "Next")];
     }
   };
 };
 
-var BeerList = {
+var _default = Pagination;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/Actions.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+var _index = _interopRequireDefault(require("../../Components/Pagination/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Actions = {
+  view: function view(_ref) {
+    var _ref$attrs = _ref.attrs,
+        mdl = _ref$attrs.mdl,
+        load = _ref$attrs.load;
+    return mdl.comparison.selections ? (0, _mithril.default)("button.btn", {
+      onclick: function onclick() {
+        mdl.comparison.beerList = {};
+        mdl.comparison.selections = false;
+      }
+    }, "Back to List") : [(0, _mithril.default)("button.btn", {
+      disabled: !Object.values(mdl.comparison.beerList).includes(true),
+      onclick: function onclick() {
+        return mdl.comparison.selections = true;
+      }
+    }, "Compare Selected"), (0, _mithril.default)("select.select", {
+      onchange: function onchange(e) {
+        return mdl.comparison.selectionsBy = e.target.value;
+      },
+      value: mdl.comparison.selectionsBy
+    }, [(0, _mithril.default)("option.option", {
+      value: "abv"
+    }, "abv"), (0, _mithril.default)("option.option", {
+      value: "ibu"
+    }, "ibu"), (0, _mithril.default)("option.option", {
+      value: "ph"
+    }, "pH"), (0, _mithril.default)("option.option", {
+      value: "srm"
+    }, "srm")]), (0, _mithril.default)(_index.default, {
+      mdl: mdl,
+      load: load
+    }), (0, _mithril.default)("select.select", {
+      onchange: function onchange(e) {
+        return mdl.state.view = e.target.value;
+      },
+      value: mdl.state.view
+    }, [(0, _mithril.default)("option.option", {
+      value: "cards"
+    }, "Card View"), (0, _mithril.default)("option.option", {
+      value: "line"
+    }, "Line Chart"), (0, _mithril.default)("option.option", {
+      value: "bar"
+    }, "Bar Chart")])];
+  }
+};
+var _default = Actions;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js","../../Components/Pagination/index.js":"src/Components/Pagination/index.js"}],"src/Pages/Beers/Charts.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// const toAbvTrace = dto => {
+//   x: [],
+//   y: [],
+//   type: 'scatter'
+// }
+// const toIbuTrace = dto => {
+//   x: [],
+//   y: [],
+//   type: 'scatter'
+// }
+// const topHTrace = dto => {
+//   x: [],
+//   y: [],
+//   type: 'scatter'
+// }
+// const toSrmTrace = dto => {
+//   x: [],
+//   y: [],
+//   type: 'scatter'
+// }
+var toScatterTrace = function toScatterTrace(dto) {
+  return dto;
+};
+
+var format = function format(data, type) {
+  console.log(data, type);
+
+  switch (type) {
+    case "scatter":
+      return toScatterTrace(data);
+      break;
+  }
+};
+
+var Charts = function Charts() {
+  var toPlot = function toPlot(dom, data, type) {
+    return Plotly.newPlot(dom, format(data, type), {
+      title: "Brew Dog"
+    });
+  };
+
+  return {
+    onupdate: function onupdate(_ref) {
+      var dom = _ref.dom,
+          _ref$attrs = _ref.attrs,
+          mdl = _ref$attrs.mdl,
+          sortedByProp = _ref$attrs.sortedByProp;
+      return toPlot(dom, sortedByProp(mdl.state.data), mdl.state.view);
+    },
+    oncreate: function oncreate(_ref2) {
+      var dom = _ref2.dom,
+          _ref2$attrs = _ref2.attrs,
+          mdl = _ref2$attrs.mdl,
+          sortedByProp = _ref2$attrs.sortedByProp;
+      return toPlot(dom, sortedByProp(mdl.state.data), mdl.state.view);
+    },
+    view: function view() {
+      return (0, _mithril.default)(".chart", {
+        id: "chart"
+      });
+    }
+  };
+};
+
+var _default = Charts;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/BarChart.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Beer = {
+  view: function view(_ref) {
+    var beer = _ref.attrs.beer;
+    return (0, _mithril.default)(".group.row", [(0, _mithril.default)("progress.cell.prog-chart", {
+      value: beer.abv,
+      max: 100
+    }), (0, _mithril.default)("progress.cell.prog-chart", {
+      value: beer.ibu,
+      max: 100
+    }), (0, _mithril.default)("progress.cell.prog-chart", {
+      value: beer.ph,
+      max: 100
+    }), (0, _mithril.default)("progress.cell.prog-chart", {
+      value: beer.srm,
+      max: 100
+    })]);
+  }
+};
+var BarChart = {
   view: function view(_ref2) {
     var _ref2$attrs = _ref2.attrs,
         mdl = _ref2$attrs.mdl,
-        beers = _ref2$attrs.beers;
-    return (0, _mithril.default)(".container", beers.map(function (_ref3) {
-      var abv = _ref3.abv,
-          ibu = _ref3.ibu,
-          ph = _ref3.ph,
-          srm = _ref3.srm,
-          image_url = _ref3.image_url,
-          id = _ref3.id;
-      return (0, _mithril.default)(MiniBeer, {
-        mdl: mdl,
-        abv: abv,
-        ibu: ibu,
-        ph: ph,
-        srm: srm,
-        img: image_url,
-        key: id
+        sortedByProp = _ref2$attrs.sortedByProp;
+    return (0, _mithril.default)(".charts", sortedByProp(mdl.state.data).map(function (beer, key) {
+      return (0, _mithril.default)(Beer, {
+        beer: beer,
+        key: key
       });
     }));
   }
 };
-var _default = BeerList;
+var _default = BarChart;
 exports.default = _default;
 },{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/CompareBeers.js":[function(require,module,exports) {
 "use strict";
@@ -2507,13 +2682,19 @@ var BeerProfile = {
     return (0, _mithril.default)(".beer-profile", [(0, _mithril.default)(".cell.row", [(0, _mithril.default)("img.img", {
       id: 1,
       src: beer.image_url
-    }), (0, _mithril.default)(".cell.col", [(0, _mithril.default)("code.cell.info", "ABV: ", beer.abv, "%"), (0, _mithril.default)("code.cell.info", "IBU: ", beer.ibu), (0, _mithril.default)("code.cell.info", "pH: ", beer.ph), (0, _mithril.default)("code.cell.info", "SRM: ", beer.srm)])]), (0, _mithril.default)(".cell", beer.name), (0, _mithril.default)(".cell", beer.first_brewed), (0, _mithril.default)(".cell", beer.tagline), (0, _mithril.default)("ul.cell", beer.food_pairing.map(function (food, key) {
-      return [(0, _mithril.default)("hr", {
-        key: key
-      }), (0, _mithril.default)("i", {
-        key: key
-      }, food)];
-    }))]);
+    }), (0, _mithril.default)(".cell.col", [(0, _mithril.default)("code.cell.info", "ABV: ", beer.abv, "%"), (0, _mithril.default)("progress.cell", {
+      value: beer.abv,
+      max: 100
+    }), (0, _mithril.default)("code.cell.info", "IBU: ", beer.ibu), (0, _mithril.default)("progress.cell", {
+      value: beer.ibu,
+      max: 100
+    }), (0, _mithril.default)("code.cell.info", "pH: ", beer.ph), (0, _mithril.default)("progress.cell", {
+      value: beer.ph,
+      max: 100
+    }), (0, _mithril.default)("code.cell.info", "SRM: ", beer.srm), (0, _mithril.default)("progress.cell", {
+      value: beer.srm,
+      max: 100
+    })])]), (0, _mithril.default)(".cell", (0, _mithril.default)("span.name", beer.name)), (0, _mithril.default)(".cell.tagline", beer.tagline)]);
   }
 };
 var CompareBeers = {
@@ -2532,7 +2713,131 @@ var CompareBeers = {
 };
 var _default = CompareBeers;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js"}],"node_modules/ramda/es/F.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/BeerCard.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var BeerCard = function BeerCard() {
+  var showInfo = true;
+  return {
+    view: function view(_ref) {
+      var _ref$attrs = _ref.attrs,
+          name = _ref$attrs.name,
+          mdl = _ref$attrs.mdl,
+          abv = _ref$attrs.abv,
+          ibu = _ref$attrs.ibu,
+          ph = _ref$attrs.ph,
+          srm = _ref$attrs.srm,
+          img = _ref$attrs.img,
+          key = _ref$attrs.key;
+      return (0, _mithril.default)(".beer-card", {
+        onmouseover: function onmouseover(e) {
+          return showInfo = false;
+        },
+        onmouseout: function onmouseout(e) {
+          return showInfo = true;
+        }
+      }, [[(0, _mithril.default)("input[type=checkbox]", {
+        id: "checkbox-".concat(key),
+        name: "checkbox-".concat(key),
+        onclick: function onclick() {
+          return mdl.comparison.beerList[key] = !mdl.comparison.beerList[key];
+        },
+        checked: mdl.comparison.beerList[key]
+      }), (0, _mithril.default)("label.label", {
+        for: "checkbox-".concat(key)
+      }, (0, _mithril.default)("img.img", {
+        src: img
+      })), (0, _mithril.default)(".footer", showInfo ? [(0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "ABV: ", abv, "%"), (0, _mithril.default)("code.cell.info", "IBU: ", ibu)]), (0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "pH: ", ph), (0, _mithril.default)("code.cell.info", "SRM: ", srm)])] : name)],,]);
+    }
+  };
+};
+
+var _default = BeerCard;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/Cards.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+var _CompareBeers = _interopRequireDefault(require("./CompareBeers.js"));
+
+var _BeerCard = _interopRequireDefault(require("./BeerCard.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var parseIds = function parseIds(ids) {
+  return Object.keys(ids).map(function (id) {
+    return parseInt(id);
+  });
+};
+
+var byComparison = function byComparison(ids) {
+  return function (beer) {
+    return parseIds(ids).includes(beer.id);
+  };
+};
+
+var BeerList = {
+  view: function view(_ref) {
+    var _ref$attrs = _ref.attrs,
+        mdl = _ref$attrs.mdl,
+        beers = _ref$attrs.beers;
+    return (0, _mithril.default)(".container", beers.map(function (_ref2) {
+      var name = _ref2.name,
+          abv = _ref2.abv,
+          ibu = _ref2.ibu,
+          ph = _ref2.ph,
+          srm = _ref2.srm,
+          image_url = _ref2.image_url,
+          id = _ref2.id;
+      return (0, _mithril.default)(_BeerCard.default, {
+        mdl: mdl,
+        name: name,
+        abv: abv,
+        ibu: ibu,
+        ph: ph,
+        srm: srm,
+        img: image_url,
+        key: id
+      });
+    }));
+  }
+};
+
+var Cards = function Cards() {
+  return {
+    view: function view(_ref3) {
+      var _ref3$attrs = _ref3.attrs,
+          mdl = _ref3$attrs.mdl,
+          sortedByProp = _ref3$attrs.sortedByProp;
+      return (0, _mithril.default)(".cards", [mdl.comparison.selections ? (0, _mithril.default)(_CompareBeers.default, {
+        mdl: mdl,
+        beers: mdl.state.data.filter(byComparison(mdl.comparison.beerList))
+      }) : (0, _mithril.default)(BeerList, {
+        mdl: mdl,
+        beers: sortedByProp(mdl.state.data)
+      })]);
+    }
+  };
+};
+
+var _default = Cards;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js","./CompareBeers.js":"src/Pages/Beers/CompareBeers.js","./BeerCard.js":"src/Pages/Beers/BeerCard.js"}],"node_modules/ramda/es/F.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20040,9 +20345,13 @@ exports.default = void 0;
 
 var _mithril = _interopRequireDefault(require("mithril"));
 
-var _BeerList = _interopRequireDefault(require("./BeerList.js"));
+var _Actions = _interopRequireDefault(require("./Actions.js"));
 
-var _CompareBeers = _interopRequireDefault(require("./CompareBeers.js"));
+var _Charts = _interopRequireDefault(require("./Charts.js"));
+
+var _BarChart = _interopRequireDefault(require("./BarChart.js"));
+
+var _Cards = _interopRequireDefault(require("./Cards.js"));
 
 var _model = require("./model.js");
 
@@ -20050,39 +20359,10 @@ var _ramda = require("ramda");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Actions = {
-  view: function view(_ref) {
-    var mdl = _ref.attrs.mdl;
-    return mdl.compareSelections ? (0, _mithril.default)("button.btn", {
-      onclick: function onclick() {
-        mdl.comparisonBeerList = {};
-        mdl.compareSelections = false;
-      }
-    }, "Back to List") : [(0, _mithril.default)("button.btn", {
-      disabled: !Object.values(mdl.comparisonBeerList).includes(true),
-      onclick: function onclick() {
-        return mdl.compareSelections = true;
-      }
-    }, "Compare Selected"), (0, _mithril.default)("select.select", {
-      onchange: function onchange(e) {
-        return mdl.compareSelectionsBy = e.target.value;
-      },
-      value: mdl.compareSelectionsBy
-    }, [(0, _mithril.default)("option.option", {
-      value: "abv"
-    }, "abv"), (0, _mithril.default)("option.option", {
-      value: "ibu"
-    }, "ibu"), (0, _mithril.default)("option.option", {
-      value: "ph"
-    }, "pH"), (0, _mithril.default)("option.option", {
-      value: "srm"
-    }, "srm")])];
-  }
-};
-
 var onError = function onError(mdl) {
-  return function (errors) {
-    mdl.state.errors = errors;
+  return function (_ref) {
+    var response = _ref.response;
+    mdl.state.errors = (0, _ramda.map)((0, _ramda.props)(["param", "msg"]), response.data);
     mdl.state.data = undefined;
   };
 };
@@ -20094,54 +20374,41 @@ var onSuccess = function onSuccess(mdl) {
   };
 };
 
-var parseIds = function parseIds(ids) {
-  return Object.keys(ids).map(function (id) {
-    return parseInt(id);
-  });
-};
-
-var byComparison = function byComparison(ids) {
-  return function (beer) {
-    return parseIds(ids).includes(beer.id);
-  };
-};
-
 var Beers = function Beers(_ref2) {
   var mdl = _ref2.attrs.mdl;
-  (0, _model.getBeers)(mdl)(mdl.pagination).then(onSuccess(mdl), onError(mdl));
+
+  var load = function load() {
+    return (0, _model.getBeers)(mdl)(mdl.pagination).then(onSuccess(mdl), onError(mdl));
+  };
+
   return {
+    oninit: load,
     view: function view(_ref3) {
       var mdl = _ref3.attrs.mdl;
 
       if (mdl.state.data) {
-        var sortedByProp = (0, _ramda.sortBy)((0, _ramda.prop)(mdl.compareSelectionsBy));
-        return [(0, _mithril.default)(Actions, {
-          mdl: mdl
-        }), (0, _mithril.default)(".beers", [mdl.compareSelections ? (0, _mithril.default)(_CompareBeers.default, {
+        var sortedByProp = (0, _ramda.sortBy)((0, _ramda.prop)(mdl.comparison.selectionsBy));
+        return [(0, _mithril.default)(_Actions.default, {
           mdl: mdl,
-          beers: mdl.state.data.filter(byComparison(mdl.comparisonBeerList))
-        }) : (0, _mithril.default)(_BeerList.default, {
+          load: load
+        }), mdl.state.view == "cards" ? (0, _mithril.default)(_Cards.default, {
           mdl: mdl,
-          beers: sortedByProp(mdl.state.data)
-        })])];
+          sortedByProp: sortedByProp
+        }) : mdl.state.view == "bar" ? (0, _mithril.default)(_BarChart.default, {
+          mdl: mdl,
+          sortedByProp: sortedByProp
+        }) : (0, _mithril.default)(_Charts.default, {
+          mdl: mdl,
+          sortedByProp: sortedByProp
+        })];
       }
     }
   };
 };
 
-var _default = Beers; // const Chart = () => {
-//   const toPlot = (dom, mdl) =>
-//     Plotly.newPlot(dom, mdl.state.data, {
-//       title: mdl.state.symbol,
-//     })
-//   return {
-//     oncreate: ({ dom, attrs: { mdl } }) => toPlot(dom, mdl),
-//     view: () => m(".chart", { id: "chart" }),
-//   }
-// }
-
+var _default = Beers;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","./BeerList.js":"src/Pages/Beers/BeerList.js","./CompareBeers.js":"src/Pages/Beers/CompareBeers.js","./model.js":"src/Pages/Beers/model.js","ramda":"node_modules/ramda/es/index.js"}],"src/App.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","./Actions.js":"src/Pages/Beers/Actions.js","./Charts.js":"src/Pages/Beers/Charts.js","./BarChart.js":"src/Pages/Beers/BarChart.js","./Cards.js":"src/Pages/Beers/Cards.js","./model.js":"src/Pages/Beers/model.js","ramda":"node_modules/ramda/es/index.js"}],"src/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20157,10 +20424,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Errors = function Errors(_ref) {
   var mdl = _ref.attrs.mdl;
-  var err = mdl.state.errors.message;
   return {
     view: function view() {
-      return (0, _mithril.default)("code.error", err);
+      return mdl.state.errors.map(function (err, key) {
+        return (0, _mithril.default)("code.error", {
+          key: key
+        }, err);
+      });
     }
   };
 };
@@ -20194,10 +20464,6 @@ var Layout = {
 
 var App = function App(mdl) {
   return {
-    // "/": {
-    //   onmatch: (a, b, c) =>
-    //     mdl.auth ? m.route.set("/beers") : m.route.set("/nonbeers"),
-    // },
     "/beers": {
       render: function render() {
         return (0, _mithril.default)(Layout, {
@@ -20206,11 +20472,7 @@ var App = function App(mdl) {
           mdl: mdl
         }));
       }
-    } // "/nonbeers": {
-    //   render: () => m(Layout, { mdl }, m(Beers, { mdl })),
-    // },
-    // "/:404": m(Layout, { mdl }, m(Errors, { mdl })),
-
+    }
   };
 };
 

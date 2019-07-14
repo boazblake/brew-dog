@@ -13,9 +13,9 @@ const pagination = {
   per_page: 30,
 }
 
-const comparisonBeerList = {}
-const compareSelections = false
-const compareSelectionsBy = "abv"
+const beerList = {}
+const selections = false
+const selectionsBy = "abv"
 
 const state = {
   profile: "",
@@ -26,6 +26,7 @@ const state = {
   },
   data: undefined,
   errors: undefined,
+  view: "cards",
 }
 
 function onProgress(e) {
@@ -69,10 +70,11 @@ const Model = {
   url,
   state,
   pagination,
-  comparisonBeerList,
-  compareSelections,
-  compareSelectionsBy,
-  auth: false,
+  comparison: {
+    beerList,
+    selections,
+    selectionsBy,
+  },
 }
 
 export default Model

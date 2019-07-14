@@ -1,11 +1,13 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
+
 :root {
   --main-color:rgba(0, 175, 219, 1) ;
   --main-lighter-color:rgba(0, 175, 219, 0.5) ;
 }
 
-
 * {
   box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .container {
@@ -17,18 +19,18 @@
 
 
 .compare-beers {
-  flex-flow: row;
+  flex-flow: wrap;;
   justify-content: flex-start;
   align-content: flex-start;
-
 
   .beer-profile {
     display: flex;
     flex-flow: column;
     border: 1px dashed var(--main-color);
-    margin-top: 10px;
+    margin: 10px;
     padding: 2px;
-    height: 90vh;
+    width: 300px;
+    max-width: 300px;
 
     .cell {
       min-width: 200px;
@@ -63,7 +65,7 @@
   justify-content: space-between;
 }
 
-.mini-beer {
+.beer-card {
   position: relative;
   padding: 4px;
   border: none;
@@ -148,7 +150,7 @@ input[type=checkbox]:checked:disabled + label:before {
 }
 
 .btn{
-  height: 2em;
+  height: 2.5em;
   border: none;
   color: white;
   background: var(--main-color);
@@ -164,16 +166,64 @@ input[type=checkbox]:checked:disabled + label:before {
 }
 
 .select {
-  height: 2em;
+  height: 2.5em;
   width: 200px;
   border: none;
   appearance: none;
   border-bottom: 1px solid var(--main-color);
-  color: var(--main-color);
   margin: 6px;
   padding: 4px;
+  background: var(--main-color);
+  color: white;
 
-  &:hover{
-    color: var(--main-lighter-color);
+  &:hover {
+    background: white;
+    color: var(--main-color);
+  }
+}
+
+.link {
+  line-height: 2em;
+  color: var(--main-color);
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 6px;
+
+  &:hover {
+    border-bottom: 1px dashed var(--main-color);
+  }
+}
+
+.input {
+  line-height: 2.3em;
+  padding: 0 6px;
+}
+
+progress {
+  transform: rotate(180deg);
+}
+
+.group {
+  width: 100px;
+}
+
+.name {
+  padding: 3px;
+  margin: 3px;
+  font-weight: bold;
+}
+
+
+.tagline {
+  quotes: "“" "”" "‘" "’";
+  text-align: center;
+
+  &::before {
+    content: open-quote;
+  }
+
+  &::after {
+    content: close-quote;
   }
 }
