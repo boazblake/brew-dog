@@ -1,6 +1,6 @@
 import m from "mithril"
 
-const BeerProfile = {
+export const BeerProfile = {
   view: ({ attrs: { beer } }) =>
     m(".beer-profile", [
       m(".cell.row", [
@@ -21,7 +21,7 @@ const BeerProfile = {
     ]),
 }
 
-const CompareBeers = {
+const BeerProfiles = {
   view: ({ attrs: { mdl, beers } }) =>
     m(
       ".container.compare-beers",
@@ -29,4 +29,4 @@ const CompareBeers = {
     ),
 }
 
-export default CompareBeers
+export default BeerProfiles

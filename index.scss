@@ -184,14 +184,13 @@ input[type=checkbox]:checked:disabled + label:before {
 
 .link {
   line-height: 2em;
-  color: var(--main-color);
-  font-size: 20px;
+  color: white;
+  font-size: 15px;
   font-weight: bold;
-  text-decoration: none;
   margin: 6px;
 
   &:hover {
-    border-bottom: 1px dashed var(--main-color);
+    color: white;
   }
 }
 
@@ -214,6 +213,18 @@ progress {
   font-weight: bold;
 }
 
+.inspect {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+
+  &:hover {
+    color: var(--main-color);
+    background: white;
+    border-radius: 20%;
+  }
+}
+
 
 .tagline {
   quotes: "“" "”" "‘" "’";
@@ -226,4 +237,14 @@ progress {
   &::after {
     content: close-quote;
   }
+}
+
+
+.modal {
+  position: fixed;
+  margin: 0 auto;
+  z-index:1;
+  background: white;
+  transform: translate(25em, 1em);
+  box-shadow: 0 8px 6px -6px var(--main-color);
 }

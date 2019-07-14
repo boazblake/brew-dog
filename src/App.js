@@ -29,6 +29,9 @@ const App = mdl => {
     "/beers": {
       render: () => m(Layout, { mdl }, m(Beers, { mdl })),
     },
+    "/beer/:key": {
+      render: () => m(Layout, { mdl }, m(Beer, { mdl })),
+    },
   }
 }
 

@@ -1,5 +1,7 @@
 import m from "mithril"
 
+const dasher = str => str.replace(/\s/g, "")
+
 const BeerCard = () => {
   let showInfo = true
   return {
@@ -37,7 +39,25 @@ const BeerCard = () => {
                       m("code.cell.info", "SRM: ", srm),
                     ]),
                   ]
-                : name
+                : m(".row", [
+                    m(
+                      m.route.Link,
+                      {
+                        class: "link",
+                        href: `/beer/${dasher(name)}`,
+                        options: { params: { key } },
+                      },
+                      m(".info.name", name)
+                    ),
+                    m(
+                      "span.inspect",
+                      {
+                        onmousedown: () => (mdl.comparison.modal = key),
+                        onmouseup: () => (mdl.comparison.modal = undefined),
+                      },
+                      m.trust(`&#9713;`)
+                    ),
+                  ])
             ),
           ],
           ,

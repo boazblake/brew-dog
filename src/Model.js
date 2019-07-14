@@ -13,9 +13,12 @@ const pagination = {
   per_page: 30,
 }
 
-const beerList = {}
-const selections = false
-const selectionsBy = "abv"
+const comparison = {
+  beerList: {},
+  selections: false,
+  selectionsBy: "abv",
+  modal: undefined,
+}
 
 const state = {
   profile: "",
@@ -70,11 +73,7 @@ const Model = {
   url,
   state,
   pagination,
-  comparison: {
-    beerList,
-    selections,
-    selectionsBy,
-  },
+  comparison,
 }
 
 export default Model

@@ -2353,9 +2353,12 @@ var pagination = {
   page: 1,
   per_page: 30
 };
-var beerList = {};
-var selections = false;
-var selectionsBy = "abv";
+var comparison = {
+  beerList: {},
+  selections: false,
+  selectionsBy: "abv",
+  modal: undefined
+};
 var state = {
   profile: "",
   isLoading: false,
@@ -2418,11 +2421,7 @@ var Model = {
   url: url,
   state: state,
   pagination: pagination,
-  comparison: {
-    beerList: beerList,
-    selections: selections,
-    selectionsBy: selectionsBy
-  }
+  comparison: comparison
 };
 var _default = Model;
 exports.default = _default;
@@ -2654,23 +2653,23 @@ var BarChart = {
     var _ref2$attrs = _ref2.attrs,
         mdl = _ref2$attrs.mdl,
         sortedByProp = _ref2$attrs.sortedByProp;
-    return (0, _mithril.default)(".charts", sortedByProp(mdl.state.data).map(function (beer, key) {
+    return (0, _mithril.default)(".charts", sortedByProp(mdl.state.data).map(function (beer) {
       return (0, _mithril.default)(Beer, {
         beer: beer,
-        key: key
+        key: beer.id
       });
     }));
   }
 };
 var _default = BarChart;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/CompareBeers.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/BeerProfiles.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.default = exports.BeerProfile = void 0;
 
 var _mithril = _interopRequireDefault(require("mithril"));
 
@@ -2697,7 +2696,8 @@ var BeerProfile = {
     })])]), (0, _mithril.default)(".cell", (0, _mithril.default)("span.name", beer.name)), (0, _mithril.default)(".cell.tagline", beer.tagline)]);
   }
 };
-var CompareBeers = {
+exports.BeerProfile = BeerProfile;
+var BeerProfiles = {
   view: function view(_ref2) {
     var _ref2$attrs = _ref2.attrs,
         mdl = _ref2$attrs.mdl,
@@ -2711,7 +2711,7 @@ var CompareBeers = {
     }));
   }
 };
-var _default = CompareBeers;
+var _default = BeerProfiles;
 exports.default = _default;
 },{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/BeerCard.js":[function(require,module,exports) {
 "use strict";
@@ -2724,6 +2724,10 @@ exports.default = void 0;
 var _mithril = _interopRequireDefault(require("mithril"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var dasher = function dasher(str) {
+  return str.replace(/\s/g, "");
+};
 
 var BeerCard = function BeerCard() {
   var showInfo = true;
@@ -2756,88 +2760,29 @@ var BeerCard = function BeerCard() {
         for: "checkbox-".concat(key)
       }, (0, _mithril.default)("img.img", {
         src: img
-      })), (0, _mithril.default)(".footer", showInfo ? [(0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "ABV: ", abv, "%"), (0, _mithril.default)("code.cell.info", "IBU: ", ibu)]), (0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "pH: ", ph), (0, _mithril.default)("code.cell.info", "SRM: ", srm)])] : name)],,]);
+      })), (0, _mithril.default)(".footer", showInfo ? [(0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "ABV: ", abv, "%"), (0, _mithril.default)("code.cell.info", "IBU: ", ibu)]), (0, _mithril.default)("cell.row", [(0, _mithril.default)("code.cell.info", "pH: ", ph), (0, _mithril.default)("code.cell.info", "SRM: ", srm)])] : (0, _mithril.default)(".row", [(0, _mithril.default)(_mithril.default.route.Link, {
+        class: "link",
+        href: "/beer/".concat(dasher(name)),
+        options: {
+          params: {
+            key: key
+          }
+        }
+      }, (0, _mithril.default)(".info.name", name)), (0, _mithril.default)("span.inspect", {
+        onmousedown: function onmousedown() {
+          return mdl.comparison.modal = key;
+        },
+        onmouseup: function onmouseup() {
+          return mdl.comparison.modal = undefined;
+        }
+      }, _mithril.default.trust("&#9713;"))]))],,]);
     }
   };
 };
 
 var _default = BeerCard;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/Cards.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _mithril = _interopRequireDefault(require("mithril"));
-
-var _CompareBeers = _interopRequireDefault(require("./CompareBeers.js"));
-
-var _BeerCard = _interopRequireDefault(require("./BeerCard.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var parseIds = function parseIds(ids) {
-  return Object.keys(ids).map(function (id) {
-    return parseInt(id);
-  });
-};
-
-var byComparison = function byComparison(ids) {
-  return function (beer) {
-    return parseIds(ids).includes(beer.id);
-  };
-};
-
-var BeerList = {
-  view: function view(_ref) {
-    var _ref$attrs = _ref.attrs,
-        mdl = _ref$attrs.mdl,
-        beers = _ref$attrs.beers;
-    return (0, _mithril.default)(".container", beers.map(function (_ref2) {
-      var name = _ref2.name,
-          abv = _ref2.abv,
-          ibu = _ref2.ibu,
-          ph = _ref2.ph,
-          srm = _ref2.srm,
-          image_url = _ref2.image_url,
-          id = _ref2.id;
-      return (0, _mithril.default)(_BeerCard.default, {
-        mdl: mdl,
-        name: name,
-        abv: abv,
-        ibu: ibu,
-        ph: ph,
-        srm: srm,
-        img: image_url,
-        key: id
-      });
-    }));
-  }
-};
-
-var Cards = function Cards() {
-  return {
-    view: function view(_ref3) {
-      var _ref3$attrs = _ref3.attrs,
-          mdl = _ref3$attrs.mdl,
-          sortedByProp = _ref3$attrs.sortedByProp;
-      return (0, _mithril.default)(".cards", [mdl.comparison.selections ? (0, _mithril.default)(_CompareBeers.default, {
-        mdl: mdl,
-        beers: mdl.state.data.filter(byComparison(mdl.comparison.beerList))
-      }) : (0, _mithril.default)(BeerList, {
-        mdl: mdl,
-        beers: sortedByProp(mdl.state.data)
-      })]);
-    }
-  };
-};
-
-var _default = Cards;
-exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","./CompareBeers.js":"src/Pages/Beers/CompareBeers.js","./BeerCard.js":"src/Pages/Beers/BeerCard.js"}],"node_modules/ramda/es/F.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js"}],"node_modules/ramda/es/F.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20304,7 +20249,87 @@ var _zipWith = _interopRequireDefault(require("./zipWith.js"));
 var _thunkify = _interopRequireDefault(require("./thunkify.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./F.js":"node_modules/ramda/es/F.js","./T.js":"node_modules/ramda/es/T.js","./__.js":"node_modules/ramda/es/__.js","./add.js":"node_modules/ramda/es/add.js","./addIndex.js":"node_modules/ramda/es/addIndex.js","./adjust.js":"node_modules/ramda/es/adjust.js","./all.js":"node_modules/ramda/es/all.js","./allPass.js":"node_modules/ramda/es/allPass.js","./always.js":"node_modules/ramda/es/always.js","./and.js":"node_modules/ramda/es/and.js","./any.js":"node_modules/ramda/es/any.js","./anyPass.js":"node_modules/ramda/es/anyPass.js","./ap.js":"node_modules/ramda/es/ap.js","./aperture.js":"node_modules/ramda/es/aperture.js","./append.js":"node_modules/ramda/es/append.js","./apply.js":"node_modules/ramda/es/apply.js","./applySpec.js":"node_modules/ramda/es/applySpec.js","./applyTo.js":"node_modules/ramda/es/applyTo.js","./ascend.js":"node_modules/ramda/es/ascend.js","./assoc.js":"node_modules/ramda/es/assoc.js","./assocPath.js":"node_modules/ramda/es/assocPath.js","./binary.js":"node_modules/ramda/es/binary.js","./bind.js":"node_modules/ramda/es/bind.js","./both.js":"node_modules/ramda/es/both.js","./call.js":"node_modules/ramda/es/call.js","./chain.js":"node_modules/ramda/es/chain.js","./clamp.js":"node_modules/ramda/es/clamp.js","./clone.js":"node_modules/ramda/es/clone.js","./comparator.js":"node_modules/ramda/es/comparator.js","./complement.js":"node_modules/ramda/es/complement.js","./compose.js":"node_modules/ramda/es/compose.js","./composeK.js":"node_modules/ramda/es/composeK.js","./composeP.js":"node_modules/ramda/es/composeP.js","./composeWith.js":"node_modules/ramda/es/composeWith.js","./concat.js":"node_modules/ramda/es/concat.js","./cond.js":"node_modules/ramda/es/cond.js","./construct.js":"node_modules/ramda/es/construct.js","./constructN.js":"node_modules/ramda/es/constructN.js","./contains.js":"node_modules/ramda/es/contains.js","./converge.js":"node_modules/ramda/es/converge.js","./countBy.js":"node_modules/ramda/es/countBy.js","./curry.js":"node_modules/ramda/es/curry.js","./curryN.js":"node_modules/ramda/es/curryN.js","./dec.js":"node_modules/ramda/es/dec.js","./defaultTo.js":"node_modules/ramda/es/defaultTo.js","./descend.js":"node_modules/ramda/es/descend.js","./difference.js":"node_modules/ramda/es/difference.js","./differenceWith.js":"node_modules/ramda/es/differenceWith.js","./dissoc.js":"node_modules/ramda/es/dissoc.js","./dissocPath.js":"node_modules/ramda/es/dissocPath.js","./divide.js":"node_modules/ramda/es/divide.js","./drop.js":"node_modules/ramda/es/drop.js","./dropLast.js":"node_modules/ramda/es/dropLast.js","./dropLastWhile.js":"node_modules/ramda/es/dropLastWhile.js","./dropRepeats.js":"node_modules/ramda/es/dropRepeats.js","./dropRepeatsWith.js":"node_modules/ramda/es/dropRepeatsWith.js","./dropWhile.js":"node_modules/ramda/es/dropWhile.js","./either.js":"node_modules/ramda/es/either.js","./empty.js":"node_modules/ramda/es/empty.js","./endsWith.js":"node_modules/ramda/es/endsWith.js","./eqBy.js":"node_modules/ramda/es/eqBy.js","./eqProps.js":"node_modules/ramda/es/eqProps.js","./equals.js":"node_modules/ramda/es/equals.js","./evolve.js":"node_modules/ramda/es/evolve.js","./filter.js":"node_modules/ramda/es/filter.js","./find.js":"node_modules/ramda/es/find.js","./findIndex.js":"node_modules/ramda/es/findIndex.js","./findLast.js":"node_modules/ramda/es/findLast.js","./findLastIndex.js":"node_modules/ramda/es/findLastIndex.js","./flatten.js":"node_modules/ramda/es/flatten.js","./flip.js":"node_modules/ramda/es/flip.js","./forEach.js":"node_modules/ramda/es/forEach.js","./forEachObjIndexed.js":"node_modules/ramda/es/forEachObjIndexed.js","./fromPairs.js":"node_modules/ramda/es/fromPairs.js","./groupBy.js":"node_modules/ramda/es/groupBy.js","./groupWith.js":"node_modules/ramda/es/groupWith.js","./gt.js":"node_modules/ramda/es/gt.js","./gte.js":"node_modules/ramda/es/gte.js","./has.js":"node_modules/ramda/es/has.js","./hasIn.js":"node_modules/ramda/es/hasIn.js","./hasPath.js":"node_modules/ramda/es/hasPath.js","./head.js":"node_modules/ramda/es/head.js","./identical.js":"node_modules/ramda/es/identical.js","./identity.js":"node_modules/ramda/es/identity.js","./ifElse.js":"node_modules/ramda/es/ifElse.js","./inc.js":"node_modules/ramda/es/inc.js","./includes.js":"node_modules/ramda/es/includes.js","./indexBy.js":"node_modules/ramda/es/indexBy.js","./indexOf.js":"node_modules/ramda/es/indexOf.js","./init.js":"node_modules/ramda/es/init.js","./innerJoin.js":"node_modules/ramda/es/innerJoin.js","./insert.js":"node_modules/ramda/es/insert.js","./insertAll.js":"node_modules/ramda/es/insertAll.js","./intersection.js":"node_modules/ramda/es/intersection.js","./intersperse.js":"node_modules/ramda/es/intersperse.js","./into.js":"node_modules/ramda/es/into.js","./invert.js":"node_modules/ramda/es/invert.js","./invertObj.js":"node_modules/ramda/es/invertObj.js","./invoker.js":"node_modules/ramda/es/invoker.js","./is.js":"node_modules/ramda/es/is.js","./isEmpty.js":"node_modules/ramda/es/isEmpty.js","./isNil.js":"node_modules/ramda/es/isNil.js","./join.js":"node_modules/ramda/es/join.js","./juxt.js":"node_modules/ramda/es/juxt.js","./keys.js":"node_modules/ramda/es/keys.js","./keysIn.js":"node_modules/ramda/es/keysIn.js","./last.js":"node_modules/ramda/es/last.js","./lastIndexOf.js":"node_modules/ramda/es/lastIndexOf.js","./length.js":"node_modules/ramda/es/length.js","./lens.js":"node_modules/ramda/es/lens.js","./lensIndex.js":"node_modules/ramda/es/lensIndex.js","./lensPath.js":"node_modules/ramda/es/lensPath.js","./lensProp.js":"node_modules/ramda/es/lensProp.js","./lift.js":"node_modules/ramda/es/lift.js","./liftN.js":"node_modules/ramda/es/liftN.js","./lt.js":"node_modules/ramda/es/lt.js","./lte.js":"node_modules/ramda/es/lte.js","./map.js":"node_modules/ramda/es/map.js","./mapAccum.js":"node_modules/ramda/es/mapAccum.js","./mapAccumRight.js":"node_modules/ramda/es/mapAccumRight.js","./mapObjIndexed.js":"node_modules/ramda/es/mapObjIndexed.js","./match.js":"node_modules/ramda/es/match.js","./mathMod.js":"node_modules/ramda/es/mathMod.js","./max.js":"node_modules/ramda/es/max.js","./maxBy.js":"node_modules/ramda/es/maxBy.js","./mean.js":"node_modules/ramda/es/mean.js","./median.js":"node_modules/ramda/es/median.js","./memoizeWith.js":"node_modules/ramda/es/memoizeWith.js","./merge.js":"node_modules/ramda/es/merge.js","./mergeAll.js":"node_modules/ramda/es/mergeAll.js","./mergeDeepLeft.js":"node_modules/ramda/es/mergeDeepLeft.js","./mergeDeepRight.js":"node_modules/ramda/es/mergeDeepRight.js","./mergeDeepWith.js":"node_modules/ramda/es/mergeDeepWith.js","./mergeDeepWithKey.js":"node_modules/ramda/es/mergeDeepWithKey.js","./mergeLeft.js":"node_modules/ramda/es/mergeLeft.js","./mergeRight.js":"node_modules/ramda/es/mergeRight.js","./mergeWith.js":"node_modules/ramda/es/mergeWith.js","./mergeWithKey.js":"node_modules/ramda/es/mergeWithKey.js","./min.js":"node_modules/ramda/es/min.js","./minBy.js":"node_modules/ramda/es/minBy.js","./modulo.js":"node_modules/ramda/es/modulo.js","./move.js":"node_modules/ramda/es/move.js","./multiply.js":"node_modules/ramda/es/multiply.js","./nAry.js":"node_modules/ramda/es/nAry.js","./negate.js":"node_modules/ramda/es/negate.js","./none.js":"node_modules/ramda/es/none.js","./not.js":"node_modules/ramda/es/not.js","./nth.js":"node_modules/ramda/es/nth.js","./nthArg.js":"node_modules/ramda/es/nthArg.js","./o.js":"node_modules/ramda/es/o.js","./objOf.js":"node_modules/ramda/es/objOf.js","./of.js":"node_modules/ramda/es/of.js","./omit.js":"node_modules/ramda/es/omit.js","./once.js":"node_modules/ramda/es/once.js","./or.js":"node_modules/ramda/es/or.js","./otherwise.js":"node_modules/ramda/es/otherwise.js","./over.js":"node_modules/ramda/es/over.js","./pair.js":"node_modules/ramda/es/pair.js","./partial.js":"node_modules/ramda/es/partial.js","./partialRight.js":"node_modules/ramda/es/partialRight.js","./partition.js":"node_modules/ramda/es/partition.js","./path.js":"node_modules/ramda/es/path.js","./pathEq.js":"node_modules/ramda/es/pathEq.js","./pathOr.js":"node_modules/ramda/es/pathOr.js","./pathSatisfies.js":"node_modules/ramda/es/pathSatisfies.js","./pick.js":"node_modules/ramda/es/pick.js","./pickAll.js":"node_modules/ramda/es/pickAll.js","./pickBy.js":"node_modules/ramda/es/pickBy.js","./pipe.js":"node_modules/ramda/es/pipe.js","./pipeK.js":"node_modules/ramda/es/pipeK.js","./pipeP.js":"node_modules/ramda/es/pipeP.js","./pipeWith.js":"node_modules/ramda/es/pipeWith.js","./pluck.js":"node_modules/ramda/es/pluck.js","./prepend.js":"node_modules/ramda/es/prepend.js","./product.js":"node_modules/ramda/es/product.js","./project.js":"node_modules/ramda/es/project.js","./prop.js":"node_modules/ramda/es/prop.js","./propEq.js":"node_modules/ramda/es/propEq.js","./propIs.js":"node_modules/ramda/es/propIs.js","./propOr.js":"node_modules/ramda/es/propOr.js","./propSatisfies.js":"node_modules/ramda/es/propSatisfies.js","./props.js":"node_modules/ramda/es/props.js","./range.js":"node_modules/ramda/es/range.js","./reduce.js":"node_modules/ramda/es/reduce.js","./reduceBy.js":"node_modules/ramda/es/reduceBy.js","./reduceRight.js":"node_modules/ramda/es/reduceRight.js","./reduceWhile.js":"node_modules/ramda/es/reduceWhile.js","./reduced.js":"node_modules/ramda/es/reduced.js","./reject.js":"node_modules/ramda/es/reject.js","./remove.js":"node_modules/ramda/es/remove.js","./repeat.js":"node_modules/ramda/es/repeat.js","./replace.js":"node_modules/ramda/es/replace.js","./reverse.js":"node_modules/ramda/es/reverse.js","./scan.js":"node_modules/ramda/es/scan.js","./sequence.js":"node_modules/ramda/es/sequence.js","./set.js":"node_modules/ramda/es/set.js","./slice.js":"node_modules/ramda/es/slice.js","./sort.js":"node_modules/ramda/es/sort.js","./sortBy.js":"node_modules/ramda/es/sortBy.js","./sortWith.js":"node_modules/ramda/es/sortWith.js","./split.js":"node_modules/ramda/es/split.js","./splitAt.js":"node_modules/ramda/es/splitAt.js","./splitEvery.js":"node_modules/ramda/es/splitEvery.js","./splitWhen.js":"node_modules/ramda/es/splitWhen.js","./startsWith.js":"node_modules/ramda/es/startsWith.js","./subtract.js":"node_modules/ramda/es/subtract.js","./sum.js":"node_modules/ramda/es/sum.js","./symmetricDifference.js":"node_modules/ramda/es/symmetricDifference.js","./symmetricDifferenceWith.js":"node_modules/ramda/es/symmetricDifferenceWith.js","./tail.js":"node_modules/ramda/es/tail.js","./take.js":"node_modules/ramda/es/take.js","./takeLast.js":"node_modules/ramda/es/takeLast.js","./takeLastWhile.js":"node_modules/ramda/es/takeLastWhile.js","./takeWhile.js":"node_modules/ramda/es/takeWhile.js","./tap.js":"node_modules/ramda/es/tap.js","./test.js":"node_modules/ramda/es/test.js","./then.js":"node_modules/ramda/es/then.js","./times.js":"node_modules/ramda/es/times.js","./toLower.js":"node_modules/ramda/es/toLower.js","./toPairs.js":"node_modules/ramda/es/toPairs.js","./toPairsIn.js":"node_modules/ramda/es/toPairsIn.js","./toString.js":"node_modules/ramda/es/toString.js","./toUpper.js":"node_modules/ramda/es/toUpper.js","./transduce.js":"node_modules/ramda/es/transduce.js","./transpose.js":"node_modules/ramda/es/transpose.js","./traverse.js":"node_modules/ramda/es/traverse.js","./trim.js":"node_modules/ramda/es/trim.js","./tryCatch.js":"node_modules/ramda/es/tryCatch.js","./type.js":"node_modules/ramda/es/type.js","./unapply.js":"node_modules/ramda/es/unapply.js","./unary.js":"node_modules/ramda/es/unary.js","./uncurryN.js":"node_modules/ramda/es/uncurryN.js","./unfold.js":"node_modules/ramda/es/unfold.js","./union.js":"node_modules/ramda/es/union.js","./unionWith.js":"node_modules/ramda/es/unionWith.js","./uniq.js":"node_modules/ramda/es/uniq.js","./uniqBy.js":"node_modules/ramda/es/uniqBy.js","./uniqWith.js":"node_modules/ramda/es/uniqWith.js","./unless.js":"node_modules/ramda/es/unless.js","./unnest.js":"node_modules/ramda/es/unnest.js","./until.js":"node_modules/ramda/es/until.js","./update.js":"node_modules/ramda/es/update.js","./useWith.js":"node_modules/ramda/es/useWith.js","./values.js":"node_modules/ramda/es/values.js","./valuesIn.js":"node_modules/ramda/es/valuesIn.js","./view.js":"node_modules/ramda/es/view.js","./when.js":"node_modules/ramda/es/when.js","./where.js":"node_modules/ramda/es/where.js","./whereEq.js":"node_modules/ramda/es/whereEq.js","./without.js":"node_modules/ramda/es/without.js","./xprod.js":"node_modules/ramda/es/xprod.js","./zip.js":"node_modules/ramda/es/zip.js","./zipObj.js":"node_modules/ramda/es/zipObj.js","./zipWith.js":"node_modules/ramda/es/zipWith.js","./thunkify.js":"node_modules/ramda/es/thunkify.js"}],"src/Pages/Beers/model.js":[function(require,module,exports) {
+},{"./F.js":"node_modules/ramda/es/F.js","./T.js":"node_modules/ramda/es/T.js","./__.js":"node_modules/ramda/es/__.js","./add.js":"node_modules/ramda/es/add.js","./addIndex.js":"node_modules/ramda/es/addIndex.js","./adjust.js":"node_modules/ramda/es/adjust.js","./all.js":"node_modules/ramda/es/all.js","./allPass.js":"node_modules/ramda/es/allPass.js","./always.js":"node_modules/ramda/es/always.js","./and.js":"node_modules/ramda/es/and.js","./any.js":"node_modules/ramda/es/any.js","./anyPass.js":"node_modules/ramda/es/anyPass.js","./ap.js":"node_modules/ramda/es/ap.js","./aperture.js":"node_modules/ramda/es/aperture.js","./append.js":"node_modules/ramda/es/append.js","./apply.js":"node_modules/ramda/es/apply.js","./applySpec.js":"node_modules/ramda/es/applySpec.js","./applyTo.js":"node_modules/ramda/es/applyTo.js","./ascend.js":"node_modules/ramda/es/ascend.js","./assoc.js":"node_modules/ramda/es/assoc.js","./assocPath.js":"node_modules/ramda/es/assocPath.js","./binary.js":"node_modules/ramda/es/binary.js","./bind.js":"node_modules/ramda/es/bind.js","./both.js":"node_modules/ramda/es/both.js","./call.js":"node_modules/ramda/es/call.js","./chain.js":"node_modules/ramda/es/chain.js","./clamp.js":"node_modules/ramda/es/clamp.js","./clone.js":"node_modules/ramda/es/clone.js","./comparator.js":"node_modules/ramda/es/comparator.js","./complement.js":"node_modules/ramda/es/complement.js","./compose.js":"node_modules/ramda/es/compose.js","./composeK.js":"node_modules/ramda/es/composeK.js","./composeP.js":"node_modules/ramda/es/composeP.js","./composeWith.js":"node_modules/ramda/es/composeWith.js","./concat.js":"node_modules/ramda/es/concat.js","./cond.js":"node_modules/ramda/es/cond.js","./construct.js":"node_modules/ramda/es/construct.js","./constructN.js":"node_modules/ramda/es/constructN.js","./contains.js":"node_modules/ramda/es/contains.js","./converge.js":"node_modules/ramda/es/converge.js","./countBy.js":"node_modules/ramda/es/countBy.js","./curry.js":"node_modules/ramda/es/curry.js","./curryN.js":"node_modules/ramda/es/curryN.js","./dec.js":"node_modules/ramda/es/dec.js","./defaultTo.js":"node_modules/ramda/es/defaultTo.js","./descend.js":"node_modules/ramda/es/descend.js","./difference.js":"node_modules/ramda/es/difference.js","./differenceWith.js":"node_modules/ramda/es/differenceWith.js","./dissoc.js":"node_modules/ramda/es/dissoc.js","./dissocPath.js":"node_modules/ramda/es/dissocPath.js","./divide.js":"node_modules/ramda/es/divide.js","./drop.js":"node_modules/ramda/es/drop.js","./dropLast.js":"node_modules/ramda/es/dropLast.js","./dropLastWhile.js":"node_modules/ramda/es/dropLastWhile.js","./dropRepeats.js":"node_modules/ramda/es/dropRepeats.js","./dropRepeatsWith.js":"node_modules/ramda/es/dropRepeatsWith.js","./dropWhile.js":"node_modules/ramda/es/dropWhile.js","./either.js":"node_modules/ramda/es/either.js","./empty.js":"node_modules/ramda/es/empty.js","./endsWith.js":"node_modules/ramda/es/endsWith.js","./eqBy.js":"node_modules/ramda/es/eqBy.js","./eqProps.js":"node_modules/ramda/es/eqProps.js","./equals.js":"node_modules/ramda/es/equals.js","./evolve.js":"node_modules/ramda/es/evolve.js","./filter.js":"node_modules/ramda/es/filter.js","./find.js":"node_modules/ramda/es/find.js","./findIndex.js":"node_modules/ramda/es/findIndex.js","./findLast.js":"node_modules/ramda/es/findLast.js","./findLastIndex.js":"node_modules/ramda/es/findLastIndex.js","./flatten.js":"node_modules/ramda/es/flatten.js","./flip.js":"node_modules/ramda/es/flip.js","./forEach.js":"node_modules/ramda/es/forEach.js","./forEachObjIndexed.js":"node_modules/ramda/es/forEachObjIndexed.js","./fromPairs.js":"node_modules/ramda/es/fromPairs.js","./groupBy.js":"node_modules/ramda/es/groupBy.js","./groupWith.js":"node_modules/ramda/es/groupWith.js","./gt.js":"node_modules/ramda/es/gt.js","./gte.js":"node_modules/ramda/es/gte.js","./has.js":"node_modules/ramda/es/has.js","./hasIn.js":"node_modules/ramda/es/hasIn.js","./hasPath.js":"node_modules/ramda/es/hasPath.js","./head.js":"node_modules/ramda/es/head.js","./identical.js":"node_modules/ramda/es/identical.js","./identity.js":"node_modules/ramda/es/identity.js","./ifElse.js":"node_modules/ramda/es/ifElse.js","./inc.js":"node_modules/ramda/es/inc.js","./includes.js":"node_modules/ramda/es/includes.js","./indexBy.js":"node_modules/ramda/es/indexBy.js","./indexOf.js":"node_modules/ramda/es/indexOf.js","./init.js":"node_modules/ramda/es/init.js","./innerJoin.js":"node_modules/ramda/es/innerJoin.js","./insert.js":"node_modules/ramda/es/insert.js","./insertAll.js":"node_modules/ramda/es/insertAll.js","./intersection.js":"node_modules/ramda/es/intersection.js","./intersperse.js":"node_modules/ramda/es/intersperse.js","./into.js":"node_modules/ramda/es/into.js","./invert.js":"node_modules/ramda/es/invert.js","./invertObj.js":"node_modules/ramda/es/invertObj.js","./invoker.js":"node_modules/ramda/es/invoker.js","./is.js":"node_modules/ramda/es/is.js","./isEmpty.js":"node_modules/ramda/es/isEmpty.js","./isNil.js":"node_modules/ramda/es/isNil.js","./join.js":"node_modules/ramda/es/join.js","./juxt.js":"node_modules/ramda/es/juxt.js","./keys.js":"node_modules/ramda/es/keys.js","./keysIn.js":"node_modules/ramda/es/keysIn.js","./last.js":"node_modules/ramda/es/last.js","./lastIndexOf.js":"node_modules/ramda/es/lastIndexOf.js","./length.js":"node_modules/ramda/es/length.js","./lens.js":"node_modules/ramda/es/lens.js","./lensIndex.js":"node_modules/ramda/es/lensIndex.js","./lensPath.js":"node_modules/ramda/es/lensPath.js","./lensProp.js":"node_modules/ramda/es/lensProp.js","./lift.js":"node_modules/ramda/es/lift.js","./liftN.js":"node_modules/ramda/es/liftN.js","./lt.js":"node_modules/ramda/es/lt.js","./lte.js":"node_modules/ramda/es/lte.js","./map.js":"node_modules/ramda/es/map.js","./mapAccum.js":"node_modules/ramda/es/mapAccum.js","./mapAccumRight.js":"node_modules/ramda/es/mapAccumRight.js","./mapObjIndexed.js":"node_modules/ramda/es/mapObjIndexed.js","./match.js":"node_modules/ramda/es/match.js","./mathMod.js":"node_modules/ramda/es/mathMod.js","./max.js":"node_modules/ramda/es/max.js","./maxBy.js":"node_modules/ramda/es/maxBy.js","./mean.js":"node_modules/ramda/es/mean.js","./median.js":"node_modules/ramda/es/median.js","./memoizeWith.js":"node_modules/ramda/es/memoizeWith.js","./merge.js":"node_modules/ramda/es/merge.js","./mergeAll.js":"node_modules/ramda/es/mergeAll.js","./mergeDeepLeft.js":"node_modules/ramda/es/mergeDeepLeft.js","./mergeDeepRight.js":"node_modules/ramda/es/mergeDeepRight.js","./mergeDeepWith.js":"node_modules/ramda/es/mergeDeepWith.js","./mergeDeepWithKey.js":"node_modules/ramda/es/mergeDeepWithKey.js","./mergeLeft.js":"node_modules/ramda/es/mergeLeft.js","./mergeRight.js":"node_modules/ramda/es/mergeRight.js","./mergeWith.js":"node_modules/ramda/es/mergeWith.js","./mergeWithKey.js":"node_modules/ramda/es/mergeWithKey.js","./min.js":"node_modules/ramda/es/min.js","./minBy.js":"node_modules/ramda/es/minBy.js","./modulo.js":"node_modules/ramda/es/modulo.js","./move.js":"node_modules/ramda/es/move.js","./multiply.js":"node_modules/ramda/es/multiply.js","./nAry.js":"node_modules/ramda/es/nAry.js","./negate.js":"node_modules/ramda/es/negate.js","./none.js":"node_modules/ramda/es/none.js","./not.js":"node_modules/ramda/es/not.js","./nth.js":"node_modules/ramda/es/nth.js","./nthArg.js":"node_modules/ramda/es/nthArg.js","./o.js":"node_modules/ramda/es/o.js","./objOf.js":"node_modules/ramda/es/objOf.js","./of.js":"node_modules/ramda/es/of.js","./omit.js":"node_modules/ramda/es/omit.js","./once.js":"node_modules/ramda/es/once.js","./or.js":"node_modules/ramda/es/or.js","./otherwise.js":"node_modules/ramda/es/otherwise.js","./over.js":"node_modules/ramda/es/over.js","./pair.js":"node_modules/ramda/es/pair.js","./partial.js":"node_modules/ramda/es/partial.js","./partialRight.js":"node_modules/ramda/es/partialRight.js","./partition.js":"node_modules/ramda/es/partition.js","./path.js":"node_modules/ramda/es/path.js","./pathEq.js":"node_modules/ramda/es/pathEq.js","./pathOr.js":"node_modules/ramda/es/pathOr.js","./pathSatisfies.js":"node_modules/ramda/es/pathSatisfies.js","./pick.js":"node_modules/ramda/es/pick.js","./pickAll.js":"node_modules/ramda/es/pickAll.js","./pickBy.js":"node_modules/ramda/es/pickBy.js","./pipe.js":"node_modules/ramda/es/pipe.js","./pipeK.js":"node_modules/ramda/es/pipeK.js","./pipeP.js":"node_modules/ramda/es/pipeP.js","./pipeWith.js":"node_modules/ramda/es/pipeWith.js","./pluck.js":"node_modules/ramda/es/pluck.js","./prepend.js":"node_modules/ramda/es/prepend.js","./product.js":"node_modules/ramda/es/product.js","./project.js":"node_modules/ramda/es/project.js","./prop.js":"node_modules/ramda/es/prop.js","./propEq.js":"node_modules/ramda/es/propEq.js","./propIs.js":"node_modules/ramda/es/propIs.js","./propOr.js":"node_modules/ramda/es/propOr.js","./propSatisfies.js":"node_modules/ramda/es/propSatisfies.js","./props.js":"node_modules/ramda/es/props.js","./range.js":"node_modules/ramda/es/range.js","./reduce.js":"node_modules/ramda/es/reduce.js","./reduceBy.js":"node_modules/ramda/es/reduceBy.js","./reduceRight.js":"node_modules/ramda/es/reduceRight.js","./reduceWhile.js":"node_modules/ramda/es/reduceWhile.js","./reduced.js":"node_modules/ramda/es/reduced.js","./reject.js":"node_modules/ramda/es/reject.js","./remove.js":"node_modules/ramda/es/remove.js","./repeat.js":"node_modules/ramda/es/repeat.js","./replace.js":"node_modules/ramda/es/replace.js","./reverse.js":"node_modules/ramda/es/reverse.js","./scan.js":"node_modules/ramda/es/scan.js","./sequence.js":"node_modules/ramda/es/sequence.js","./set.js":"node_modules/ramda/es/set.js","./slice.js":"node_modules/ramda/es/slice.js","./sort.js":"node_modules/ramda/es/sort.js","./sortBy.js":"node_modules/ramda/es/sortBy.js","./sortWith.js":"node_modules/ramda/es/sortWith.js","./split.js":"node_modules/ramda/es/split.js","./splitAt.js":"node_modules/ramda/es/splitAt.js","./splitEvery.js":"node_modules/ramda/es/splitEvery.js","./splitWhen.js":"node_modules/ramda/es/splitWhen.js","./startsWith.js":"node_modules/ramda/es/startsWith.js","./subtract.js":"node_modules/ramda/es/subtract.js","./sum.js":"node_modules/ramda/es/sum.js","./symmetricDifference.js":"node_modules/ramda/es/symmetricDifference.js","./symmetricDifferenceWith.js":"node_modules/ramda/es/symmetricDifferenceWith.js","./tail.js":"node_modules/ramda/es/tail.js","./take.js":"node_modules/ramda/es/take.js","./takeLast.js":"node_modules/ramda/es/takeLast.js","./takeLastWhile.js":"node_modules/ramda/es/takeLastWhile.js","./takeWhile.js":"node_modules/ramda/es/takeWhile.js","./tap.js":"node_modules/ramda/es/tap.js","./test.js":"node_modules/ramda/es/test.js","./then.js":"node_modules/ramda/es/then.js","./times.js":"node_modules/ramda/es/times.js","./toLower.js":"node_modules/ramda/es/toLower.js","./toPairs.js":"node_modules/ramda/es/toPairs.js","./toPairsIn.js":"node_modules/ramda/es/toPairsIn.js","./toString.js":"node_modules/ramda/es/toString.js","./toUpper.js":"node_modules/ramda/es/toUpper.js","./transduce.js":"node_modules/ramda/es/transduce.js","./transpose.js":"node_modules/ramda/es/transpose.js","./traverse.js":"node_modules/ramda/es/traverse.js","./trim.js":"node_modules/ramda/es/trim.js","./tryCatch.js":"node_modules/ramda/es/tryCatch.js","./type.js":"node_modules/ramda/es/type.js","./unapply.js":"node_modules/ramda/es/unapply.js","./unary.js":"node_modules/ramda/es/unary.js","./uncurryN.js":"node_modules/ramda/es/uncurryN.js","./unfold.js":"node_modules/ramda/es/unfold.js","./union.js":"node_modules/ramda/es/union.js","./unionWith.js":"node_modules/ramda/es/unionWith.js","./uniq.js":"node_modules/ramda/es/uniq.js","./uniqBy.js":"node_modules/ramda/es/uniqBy.js","./uniqWith.js":"node_modules/ramda/es/uniqWith.js","./unless.js":"node_modules/ramda/es/unless.js","./unnest.js":"node_modules/ramda/es/unnest.js","./until.js":"node_modules/ramda/es/until.js","./update.js":"node_modules/ramda/es/update.js","./useWith.js":"node_modules/ramda/es/useWith.js","./values.js":"node_modules/ramda/es/values.js","./valuesIn.js":"node_modules/ramda/es/valuesIn.js","./view.js":"node_modules/ramda/es/view.js","./when.js":"node_modules/ramda/es/when.js","./where.js":"node_modules/ramda/es/where.js","./whereEq.js":"node_modules/ramda/es/whereEq.js","./without.js":"node_modules/ramda/es/without.js","./xprod.js":"node_modules/ramda/es/xprod.js","./zip.js":"node_modules/ramda/es/zip.js","./zipObj.js":"node_modules/ramda/es/zipObj.js","./zipWith.js":"node_modules/ramda/es/zipWith.js","./thunkify.js":"node_modules/ramda/es/thunkify.js"}],"src/Pages/Beers/Cards.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+var _BeerProfiles = _interopRequireWildcard(require("./BeerProfiles.js"));
+
+var _BeerCard = _interopRequireDefault(require("./BeerCard.js"));
+
+var _ramda = require("ramda");
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var parseIds = function parseIds(ids) {
+  return Object.keys(ids).map(function (id) {
+    return parseInt(id);
+  });
+};
+
+var byComparison = function byComparison(ids) {
+  return function (beer) {
+    return parseIds(ids).includes(beer.id);
+  };
+};
+
+var BeerList = {
+  view: function view(_ref) {
+    var _ref$attrs = _ref.attrs,
+        mdl = _ref$attrs.mdl,
+        beers = _ref$attrs.beers;
+    return (0, _mithril.default)(".container", beers.map(function (_ref2) {
+      var name = _ref2.name,
+          abv = _ref2.abv,
+          ibu = _ref2.ibu,
+          ph = _ref2.ph,
+          srm = _ref2.srm,
+          image_url = _ref2.image_url,
+          id = _ref2.id;
+      return (0, _mithril.default)(_BeerCard.default, {
+        mdl: mdl,
+        name: name,
+        abv: abv,
+        ibu: ibu,
+        ph: ph,
+        srm: srm,
+        img: image_url,
+        key: id
+      });
+    }));
+  }
+};
+
+var Cards = function Cards() {
+  return {
+    view: function view(_ref3) {
+      var _ref3$attrs = _ref3.attrs,
+          mdl = _ref3$attrs.mdl,
+          sortedByProp = _ref3$attrs.sortedByProp;
+      return (0, _mithril.default)(".cards", [[mdl.comparison.modal && (0, _mithril.default)(".compare-beers.modal", (0, _mithril.default)(_BeerProfiles.BeerProfile, {
+        beer: (0, _ramda.head)(mdl.state.data.filter((0, _ramda.propEq)("id", mdl.comparison.modal)))
+      }))], mdl.comparison.selections ? (0, _mithril.default)(_BeerProfiles.default, {
+        mdl: mdl,
+        beers: mdl.state.data.filter(byComparison(mdl.comparison.beerList))
+      }) : (0, _mithril.default)(BeerList, {
+        mdl: mdl,
+        beers: sortedByProp(mdl.state.data)
+      })]);
+    }
+  };
+};
+
+var _default = Cards;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js","./BeerProfiles.js":"src/Pages/Beers/BeerProfiles.js","./BeerCard.js":"src/Pages/Beers/BeerCard.js","ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beers/model.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20469,6 +20494,15 @@ var App = function App(mdl) {
         return (0, _mithril.default)(Layout, {
           mdl: mdl
         }, (0, _mithril.default)(_index.default, {
+          mdl: mdl
+        }));
+      }
+    },
+    "/beer/:key": {
+      render: function render() {
+        return (0, _mithril.default)(Layout, {
+          mdl: mdl
+        }, (0, _mithril.default)(Beer, {
           mdl: mdl
         }));
       }

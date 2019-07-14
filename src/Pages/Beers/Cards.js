@@ -1,6 +1,7 @@
 import m from "mithril"
-import CompareBeers from "./CompareBeers.js"
+import CompareBeers, { BeerProfile } from "./BeerProfiles.js"
 import BeerCard from "./BeerCard.js"
+import { head, propEq } from "ramda"
 
 const parseIds = ids => Object.keys(ids).map(id => parseInt(id))
 
@@ -20,6 +21,17 @@ const Cards = () => {
   return {
     view: ({ attrs: { mdl, sortedByProp } }) =>
       m(".cards", [
+        [
+          mdl.comparison.modal &&
+            m(
+              ".compare-beers.modal",
+              m(BeerProfile, {
+                beer: head(
+                  mdl.state.data.filter(propEq("id", mdl.comparison.modal))
+                ),
+              })
+            ),
+        ],
         mdl.comparison.selections
           ? m(CompareBeers, {
               mdl,
