@@ -2455,7 +2455,7 @@ var Pagination = function Pagination(_ref) {
   return {
     view: function view(_ref2) {
       var mdl = _ref2.attrs.mdl;
-      return [(0, _mithril.default)("button.btn", {
+      return (0, _mithril.default)(".pagination", [(0, _mithril.default)("button.btn", {
         disabled: mdl.pagination.page == 1,
         onclick: function onclick() {
           return pageBack(mdl);
@@ -2472,7 +2472,7 @@ var Pagination = function Pagination(_ref) {
         onclick: function onclick() {
           return pageForward(mdl);
         }
-      }, "Next")];
+      }, "Next")]);
     }
   };
 };
@@ -2498,7 +2498,7 @@ var Actions = {
     var _ref$attrs = _ref.attrs,
         mdl = _ref$attrs.mdl,
         load = _ref$attrs.load;
-    return mdl.comparison.selections ? (0, _mithril.default)("button.btn", {
+    return (0, _mithril.default)("header.container.actions", mdl.comparison.selections ? (0, _mithril.default)("button.btn", {
       onclick: function onclick() {
         mdl.comparison.beerList = {};
         mdl.comparison.selections = false;
@@ -2535,7 +2535,7 @@ var Actions = {
       value: "line"
     }, "Line Chart"), (0, _mithril.default)("option.option", {
       value: "bar"
-    }, "Bar Chart")])];
+    }, "Bar Chart")])]);
   }
 };
 var _default = Actions;
@@ -20286,7 +20286,7 @@ var BeerList = {
     var _ref$attrs = _ref.attrs,
         mdl = _ref$attrs.mdl,
         beers = _ref$attrs.beers;
-    return (0, _mithril.default)(".container", beers.map(function (_ref2) {
+    return (0, _mithril.default)(".cards.container", beers.map(function (_ref2) {
       var name = _ref2.name,
           abv = _ref2.abv,
           ibu = _ref2.ibu,
@@ -20314,7 +20314,7 @@ var Cards = function Cards() {
       var _ref3$attrs = _ref3.attrs,
           mdl = _ref3$attrs.mdl,
           sortedByProp = _ref3$attrs.sortedByProp;
-      return (0, _mithril.default)(".cards", [[mdl.comparison.modal && (0, _mithril.default)(".compare-beers.modal", (0, _mithril.default)(_BeerProfiles.BeerProfile, {
+      return [[mdl.comparison.modal && (0, _mithril.default)(".compare-beers.modal", (0, _mithril.default)(_BeerProfiles.BeerProfile, {
         beer: (0, _ramda.head)(mdl.state.data.filter((0, _ramda.propEq)("id", mdl.comparison.modal)))
       }))], mdl.comparison.selections ? (0, _mithril.default)(_BeerProfiles.default, {
         mdl: mdl,
@@ -20322,7 +20322,7 @@ var Cards = function Cards() {
       }) : (0, _mithril.default)(BeerList, {
         mdl: mdl,
         beers: sortedByProp(mdl.state.data)
-      })]);
+      })];
     }
   };
 };
@@ -20660,7 +20660,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51988" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59282" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

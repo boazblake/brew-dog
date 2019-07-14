@@ -17,6 +17,9 @@
   margin: 0 auto;
 }
 
+.cards {
+  margin-top: 60px;
+}
 
 .compare-beers {
   flex-flow: wrap;;
@@ -52,6 +55,16 @@
     }
     }
   }
+}
+
+.actions {
+  position: fixed;
+  z-index: 1;
+  justify-content: space-evenly;
+  background: white;
+  top: 0;
+  height: 4em;
+  padding: 0.7em;
 }
 
 .col {
@@ -94,6 +107,13 @@
   }
 }
 
+.pagination {
+  .input,
+ .btn {
+  height: 2.5em;
+  margin: 6px 0;
+ }
+}
 
 .error {
   line-height: 3em;
@@ -150,7 +170,6 @@ input[type=checkbox]:checked:disabled + label:before {
 }
 
 .btn{
-  height: 2.5em;
   border: none;
   color: white;
   background: var(--main-color);
@@ -166,10 +185,8 @@ input[type=checkbox]:checked:disabled + label:before {
 }
 
 .select {
-  height: 2.5em;
   width: 200px;
   border: none;
-  appearance: none;
   border-bottom: 1px solid var(--main-color);
   margin: 6px;
   padding: 4px;
@@ -180,10 +197,13 @@ input[type=checkbox]:checked:disabled + label:before {
     background: white;
     color: var(--main-color);
   }
+
+  .option {
+    height: 2em;
+  }
 }
 
 .link {
-  line-height: 2em;
   color: white;
   font-size: 15px;
   font-weight: bold;
@@ -195,7 +215,6 @@ input[type=checkbox]:checked:disabled + label:before {
 }
 
 .input {
-  line-height: 2.3em;
   padding: 0 6px;
 }
 
