@@ -1,11 +1,10 @@
 import m from "mithril"
 import Actions from "./Actions.js"
 import Charts from "./Charts.js"
-import BarChart from "./BarChart.js"
 import Cards from "./Cards.js"
 
 import { getBeers } from "./model.js"
-import { sortBy, compose, prop, props, map } from "ramda"
+import { sortBy, prop, props, map } from "ramda"
 
 const onError = mdl => ({ response }) => {
   mdl.state.errors = map(props(["param", "msg"]), response.data)

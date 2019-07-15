@@ -20064,11 +20064,11 @@ var _ramda = require("ramda");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var toTrace = function toTrace(prop, data, mode) {
+var toLineTrace = function toLineTrace(prop, data) {
   return {
     x: data.map((0, _ramda.view)((0, _ramda.lensIndex)(1))),
     y: data.map((0, _ramda.view)((0, _ramda.lensIndex)(0))),
-    mode: mode,
+    mode: "lines+markers",
     name: prop[2],
     line: {
       color: prop[1],
@@ -20087,18 +20087,15 @@ var getData = function getData(prop, data) {
   return (0, _ramda.map)((0, _ramda.props)([prop[0], "name"]), data);
 };
 
-var makeDto = function makeDto(data, props) {
-  var mode = "lines+markers";
-  var traces = props.map(function (prop) {
-    return toTrace(prop, getData(prop, data), mode);
+var makeData = function makeData(data, props) {
+  return props.map(function (prop) {
+    return toLineTrace(prop, getData(prop, data));
   });
-  console.log("traces", traces);
-  return traces;
 };
 
 var Charts = function Charts() {
   var toPlot = function toPlot(dom, data, props) {
-    return Plotly.newPlot(dom, makeDto(data, getTraceProps(props)), {
+    return Plotly.newPlot(dom, makeData(data, getTraceProps(props)), {
       title: "Brew Dog"
     });
   };
@@ -20129,52 +20126,7 @@ var Charts = function Charts() {
 
 var _default = Charts;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beers/BarChart.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _mithril = _interopRequireDefault(require("mithril"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Beer = {
-  view: function view(_ref) {
-    var beer = _ref.attrs.beer;
-    return (0, _mithril.default)(".group.row", [(0, _mithril.default)("progress.cell.prog-chart", {
-      value: beer.abv,
-      max: 100
-    }), (0, _mithril.default)("progress.cell.prog-chart", {
-      value: beer.ibu,
-      max: 100
-    }), (0, _mithril.default)("progress.cell.prog-chart", {
-      value: beer.ph,
-      max: 100
-    }), (0, _mithril.default)("progress.cell.prog-chart", {
-      value: beer.srm,
-      max: 100
-    })]);
-  }
-};
-var BarChart = {
-  view: function view(_ref2) {
-    var _ref2$attrs = _ref2.attrs,
-        mdl = _ref2$attrs.mdl,
-        filteredByProp = _ref2$attrs.filteredByProp;
-    return (0, _mithril.default)(".charts", filteredByProp(mdl.state.data).map(function (beer) {
-      return (0, _mithril.default)(Beer, {
-        beer: beer,
-        key: beer.id
-      });
-    }));
-  }
-};
-var _default = BarChart;
-exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/BeerProfiles.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beers/BeerProfiles.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20418,8 +20370,6 @@ var _Actions = _interopRequireDefault(require("./Actions.js"));
 
 var _Charts = _interopRequireDefault(require("./Charts.js"));
 
-var _BarChart = _interopRequireDefault(require("./BarChart.js"));
-
 var _Cards = _interopRequireDefault(require("./Cards.js"));
 
 var _model = require("./model.js");
@@ -20474,7 +20424,7 @@ var Beers = function Beers(_ref2) {
 
 var _default = Beers;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","./Actions.js":"src/Pages/Beers/Actions.js","./Charts.js":"src/Pages/Beers/Charts.js","./BarChart.js":"src/Pages/Beers/BarChart.js","./Cards.js":"src/Pages/Beers/Cards.js","./model.js":"src/Pages/Beers/model.js","ramda":"node_modules/ramda/es/index.js"}],"src/App.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","./Actions.js":"src/Pages/Beers/Actions.js","./Charts.js":"src/Pages/Beers/Charts.js","./Cards.js":"src/Pages/Beers/Cards.js","./model.js":"src/Pages/Beers/model.js","ramda":"node_modules/ramda/es/index.js"}],"src/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
