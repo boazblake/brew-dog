@@ -11,10 +11,12 @@ const Beer = {
 }
 
 const BarChart = {
-  view: ({ attrs: { mdl, sortedByProp } }) =>
+  view: ({ attrs: { mdl, filteredByProp } }) =>
     m(
       ".charts",
-      sortedByProp(mdl.state.data).map(beer => m(Beer, { beer, key: beer.id }))
+      filteredByProp(mdl.state.data).map(beer =>
+        m(Beer, { beer, key: beer.id })
+      )
     ),
 }
 

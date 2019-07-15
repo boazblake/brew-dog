@@ -1,52 +1,50 @@
 import m from "mithril"
+import { map } from "ramda"
 
-// const toAbvTrace = dto => {
-//   x: [],
-//   y: [],
-//   type: 'scatter'
-// }
-// const toIbuTrace = dto => {
-//   x: [],
-//   y: [],
-//   type: 'scatter'
-// }
-// const topHTrace = dto => {
-//   x: [],
-//   y: [],
-//   type: 'scatter'
-// }
-// const toSrmTrace = dto => {
-//   x: [],
-//   y: [],
-//   type: 'scatter'
-// }
+const toAbvTrace = (dto, type) => ({
+  x: x.push(dto.abv),
+  y: y.push(dto.name),
+  type,
+})
+const toIbuTrace = (dto, type) => ({
+  x: x.push(dto.ibu),
+  y: y.push(dto.name),
+  type,
+})
+const topHTrace = (dto, type) => ({
+  x: x.push(dto.ph),
+  y: y.push(dto.name),
+  type,
+})
+const toSrmTrace = (dto, type) => ({
+  x: x.push(dto.srm),
+  y: y.push(dto.name),
+  type,
+})
+const traces = [toAbvTrace, toIbuTrace, topHTrace, toSrmTrace]
 
-const toScatterTrace = dto => dto
-
-const format = (data, type) => {
-  console.log(data, type)
-  switch (type) {
-    case "scatter":
-      return toScatterTrace(data)
-      break
-  }
+const toTraces = data => {
+  let type = "scatter"
+  console.log(
+    "format"
+    // data.map(dto => )
+  )
+  return data
 }
 
 const Charts = () => {
-  const toPlot = (dom, data, type) => {
-    return Plotly.newPlot(dom, format(data, type), {
+  const toPlot = (dom, data) => {
+    return Plotly.newPlot(dom, [toTraces(data)], {
       title: `Brew Dog`,
     })
   }
 
   return {
-    onupdate: ({ dom, attrs: { mdl, sortedByProp } }) =>
-      toPlot(dom, sortedByProp(mdl.state.data), mdl.state.view),
-    oncreate: ({ dom, attrs: { mdl, sortedByProp } }) =>
-      toPlot(dom, sortedByProp(mdl.state.data), mdl.state.view),
-    view: () => {
-      return m(".chart", { id: "chart" })
-    },
+    oncreate: ({ dom, attrs: { mdl, data } }) => toPlot(dom, data),
+    view: ({ attrs: { mdl } }) => [
+      m(".chart", { id: "chart" }),
+      // ("code", ("pre", JSON.stringify(mdl.comparison.filterBy))),
+    ],
   }
 }
 

@@ -5,7 +5,7 @@ import BarChart from "./BarChart.js"
 import Cards from "./Cards.js"
 
 import { getBeers } from "./model.js"
-import { sortBy, prop, props, map } from "ramda"
+import { sortBy, compose, prop, props, map } from "ramda"
 
 const onError = mdl => ({ response }) => {
   mdl.state.errors = map(props(["param", "msg"]), response.data)
@@ -25,14 +25,12 @@ const Beers = ({ attrs: { mdl } }) => {
     oninit: load,
     view: ({ attrs: { mdl } }) => {
       if (mdl.state.data) {
-        const sortedByProp = sortBy(prop(mdl.comparison.selectionsBy))
+        const sortedByProp = sortBy(prop(mdl.comparison.sortBy))
         return [
           m(Actions, { mdl, load }),
           mdl.state.view == "cards"
             ? m(Cards, { mdl, sortedByProp })
-            : mdl.state.view == "bar"
-            ? m(BarChart, { mdl, sortedByProp })
-            : m(Charts, { mdl, sortedByProp }),
+            : m(Charts, { mdl, data: mdl.state.data }),
         ]
       }
     },

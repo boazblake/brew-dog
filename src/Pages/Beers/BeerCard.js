@@ -3,14 +3,14 @@ import m from "mithril"
 const dasher = str => str.replace(/\s/g, "")
 
 const BeerCard = () => {
-  let showInfo = true
+  let showInfo = false
   return {
     view: ({ attrs: { name, mdl, abv, ibu, ph, srm, img, key } }) => {
       return m(
         ".beer-card",
         {
-          onmouseover: e => (showInfo = false),
-          onmouseout: e => (showInfo = true),
+          onmouseover: e => (showInfo = true),
+          onmouseout: e => (showInfo = false),
         },
         [
           [
@@ -28,36 +28,34 @@ const BeerCard = () => {
             ),
             m(
               ".footer",
-              showInfo
-                ? [
-                    m("cell.row", [
-                      m("code.cell.info", "ABV: ", abv, "%"),
-                      m("code.cell.info", "IBU: ", ibu),
-                    ]),
-                    m("cell.row", [
-                      m("code.cell.info", "pH: ", ph),
-                      m("code.cell.info", "SRM: ", srm),
-                    ]),
+              m(".row", [
+                m(
+                  m.route.Link,
+                  {
+                    class: "link",
+                    href: `/beer/${dasher(name)}`,
+                    options: { params: { key } },
+                  },
+                  m(".info.name", name)
+                ),
+              ]),
+              showInfo && [
+                m(
+                  "cell.row",
+                  {
+                    onmousedown: () => (mdl.comparison.modal = key),
+                    onmouseup: () => (mdl.comparison.modal = undefined),
+                  },
+                  [
+                    m("code.cell.info", "ABV: ", abv, "%"),
+                    m("code.cell.info", "IBU: ", ibu),
                   ]
-                : m(".row", [
-                    m(
-                      m.route.Link,
-                      {
-                        class: "link",
-                        href: `/beer/${dasher(name)}`,
-                        options: { params: { key } },
-                      },
-                      m(".info.name", name)
-                    ),
-                    m(
-                      "span.inspect",
-                      {
-                        onmousedown: () => (mdl.comparison.modal = key),
-                        onmouseup: () => (mdl.comparison.modal = undefined),
-                      },
-                      m.trust(`&#9713;`)
-                    ),
-                  ])
+                ),
+                m("cell.row", [
+                  m("code.cell.info", "pH: ", ph),
+                  m("code.cell.info", "SRM: ", srm),
+                ]),
+              ]
             ),
           ],
           ,

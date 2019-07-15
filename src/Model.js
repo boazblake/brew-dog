@@ -16,7 +16,7 @@ const pagination = {
 const comparison = {
   beerList: {},
   selections: false,
-  selectionsBy: "abv",
+  sortBy: "abv",
   modal: undefined,
 }
 
