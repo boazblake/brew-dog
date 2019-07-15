@@ -34,14 +34,10 @@ const Actions = {
                 {
                   onchange: e => (mdl.comparison.sortBy = e.target.value),
                   value: mdl.comparison.sortBy,
-                  multiple: mdl.state.view == "line",
                 },
-                [
-                  m("option.option", { value: "abv" }, "abv"),
-                  m("option.option", { value: "ibu" }, "ibu"),
-                  m("option.option", { value: "ph" }, "pH"),
-                  m("option.option", { value: "srm" }, "srm"),
-                ]
+                mdl.props.map((prop, key) =>
+                  m("option", { key, value: prop.value }, prop.key)
+                )
               ),
             ],
             m(Pagination, { mdl, load }),
@@ -56,6 +52,24 @@ const Actions = {
                 m("option.option", { value: "charts" }, "Charts View"),
               ]
             ),
+            mdl.state.view == "charts" && [
+              m(
+                "ul.action-radios",
+                mdl.props.map((prop, key) =>
+                  m(".", [
+                    m("input[type=radio].charts-radio", {
+                      key,
+                      name: prop.value,
+                      value: prop.value,
+                      id: prop.value,
+                      checked: prop.checked,
+                      onclick: () => (prop.checked = !prop.checked),
+                    }),
+                    m("label.radio-label", { key, for: prop.value }, prop.key),
+                  ])
+                )
+              ),
+            ],
           ]
     ),
 }

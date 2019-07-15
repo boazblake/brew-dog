@@ -2349,6 +2349,39 @@ var url = function url() {
   return "https://api.punkapi.com/v2/beers/".concat(id);
 };
 
+var props = [{
+  color: "#1abc9c",
+  key: "pH",
+  value: "ph"
+}, {
+  color: "#3498db",
+  key: "Alcohol By Vol",
+  value: "abv"
+}, {
+  color: "#9b59b6",
+  key: "Int. Bitterness Levels",
+  value: "ibu"
+}, {
+  color: "#34495e",
+  key: "Standard Reference Method",
+  value: "srm"
+}, {
+  color: "#f1c40f",
+  key: "Target Final Gravity",
+  value: "target_fg"
+}, {
+  color: "##2ecc71",
+  key: "Target Original Gravity",
+  value: "target_og"
+}, {
+  color: "#c0392b",
+  key: "European Brewery Convention",
+  value: "ebc"
+}, {
+  color: "#7f8c8d",
+  key: "Attenuation Level",
+  value: "attenuation_level"
+}];
 var pagination = {
   page: 1,
   per_page: 30
@@ -2421,7 +2454,8 @@ var Model = {
   url: url,
   state: state,
   pagination: pagination,
-  comparison: comparison
+  comparison: comparison,
+  props: props
 };
 var _default = Model;
 exports.default = _default;
@@ -2512,17 +2546,13 @@ var Actions = {
       onchange: function onchange(e) {
         return mdl.comparison.sortBy = e.target.value;
       },
-      value: mdl.comparison.sortBy,
-      multiple: mdl.state.view == "line"
-    }, [(0, _mithril.default)("option.option", {
-      value: "abv"
-    }, "abv"), (0, _mithril.default)("option.option", {
-      value: "ibu"
-    }, "ibu"), (0, _mithril.default)("option.option", {
-      value: "ph"
-    }, "pH"), (0, _mithril.default)("option.option", {
-      value: "srm"
-    }, "srm")])], (0, _mithril.default)(_index.default, {
+      value: mdl.comparison.sortBy
+    }, mdl.props.map(function (prop, key) {
+      return (0, _mithril.default)("option", {
+        key: key,
+        value: prop.value
+      }, prop.key);
+    }))], (0, _mithril.default)(_index.default, {
       mdl: mdl,
       load: load
     }), (0, _mithril.default)("select.select", {
@@ -2534,7 +2564,21 @@ var Actions = {
       value: "cards"
     }, "Card View"), (0, _mithril.default)("option.option", {
       value: "charts"
-    }, "Charts View")])]);
+    }, "Charts View")]), mdl.state.view == "charts" && [(0, _mithril.default)("ul.action-radios", mdl.props.map(function (prop, key) {
+      return (0, _mithril.default)(".", [(0, _mithril.default)("input[type=radio].charts-radio", {
+        key: key,
+        name: prop.value,
+        value: prop.value,
+        id: prop.value,
+        checked: prop.checked,
+        onclick: function onclick() {
+          return prop.checked = !prop.checked;
+        }
+      }), (0, _mithril.default)("label.radio-label", {
+        key: key,
+        for: prop.value
+      }, prop.key)]);
+    }))]]);
   }
 };
 var _default = Actions;
@@ -20020,50 +20064,41 @@ var _ramda = require("ramda");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var toAbvTrace = function toAbvTrace(dto, type) {
+var toTrace = function toTrace(prop, data, mode) {
   return {
-    x: x.push(dto.abv),
-    y: y.push(dto.name),
-    type: type
+    x: data.map((0, _ramda.view)((0, _ramda.lensIndex)(1))),
+    y: data.map((0, _ramda.view)((0, _ramda.lensIndex)(0))),
+    mode: mode,
+    name: prop[2],
+    line: {
+      color: prop[1],
+      width: 2
+    },
+    marker: {
+      color: prop[1],
+      size: 12
+    }
   };
 };
 
-var toIbuTrace = function toIbuTrace(dto, type) {
-  return {
-    x: x.push(dto.ibu),
-    y: y.push(dto.name),
-    type: type
-  };
+var getTraceProps = (0, _ramda.compose)((0, _ramda.map)((0, _ramda.props)(["value", "color", "key"])), (0, _ramda.filter)((0, _ramda.propEq)("checked", true)));
+
+var getData = function getData(prop, data) {
+  return (0, _ramda.map)((0, _ramda.props)([prop[0], "name"]), data);
 };
 
-var topHTrace = function topHTrace(dto, type) {
-  return {
-    x: x.push(dto.ph),
-    y: y.push(dto.name),
-    type: type
-  };
-};
-
-var toSrmTrace = function toSrmTrace(dto, type) {
-  return {
-    x: x.push(dto.srm),
-    y: y.push(dto.name),
-    type: type
-  };
-};
-
-var traces = [toAbvTrace, toIbuTrace, topHTrace, toSrmTrace];
-
-var toTraces = function toTraces(data) {
-  var type = "scatter";
-  console.log("format" // data.map(dto => )
-  );
-  return data;
+var makeDto = function makeDto(data, props) {
+  var mode = "lines+markers";
+  var traces = props.map(function (prop) {
+    return toTrace(prop, getData(prop, data), mode);
+  });
+  console.log("traces", traces);
+  return traces;
 };
 
 var Charts = function Charts() {
-  var toPlot = function toPlot(dom, data) {
-    return Plotly.newPlot(dom, [toTraces(data)], {
+  var toPlot = function toPlot(dom, data, props) {
+    return Plotly.newPlot(dom, makeDto(data, getTraceProps(props)), {
       title: "Brew Dog"
     });
   };
@@ -20074,10 +20109,17 @@ var Charts = function Charts() {
           _ref$attrs = _ref.attrs,
           mdl = _ref$attrs.mdl,
           data = _ref$attrs.data;
-      return toPlot(dom, data);
+      return toPlot(dom, data, mdl.props);
     },
-    view: function view(_ref2) {
-      var mdl = _ref2.attrs.mdl;
+    onupdate: function onupdate(_ref2) {
+      var dom = _ref2.dom,
+          _ref2$attrs = _ref2.attrs,
+          mdl = _ref2$attrs.mdl,
+          data = _ref2$attrs.data;
+      return toPlot(dom, data, mdl.props);
+    },
+    view: function view(_ref3) {
+      var mdl = _ref3.attrs.mdl;
       return [(0, _mithril.default)(".chart", {
         id: "chart"
       })];
@@ -20659,7 +20701,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65308" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64490" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

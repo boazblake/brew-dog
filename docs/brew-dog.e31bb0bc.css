@@ -26,8 +26,8 @@
   margin-top: 60px;
 }
 
-.charts {
-  margin-top: 60px;
+.chart {
+  margin-top: 150px;
 }
 
 .compare-beers {
@@ -170,6 +170,51 @@ input[type=checkbox]:checked:disabled + label:before {
   transform: scale(1);
   background-color: var(--dark-blue);
   border-color: var(--dark-blue);
+}
+
+.action-radios {
+  display: flex;
+  flex-flow: wrap;
+}
+
+input[type=radio] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: inline-block;
+  position: relative;
+  background-color: #f1f1f1;
+  color: #666;
+  top: 10px;
+  height: 30px;
+  width: 30px;
+  border: 0;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-right: 7px;
+  outline: none;
+}
+input[type=radio]:checked::before {
+  position: absolute;
+  font: 13px/1 "Open Sans", sans-serif;
+  left: 11px;
+  top: 7px;
+  content: "⅃";
+  transform: rotate(40deg);
+}
+input[type=radio]:hover {
+  background-color: #f7f7f7;
+}
+input[type=radio]:checked {
+  background-color: #f1f1f1;
+}
+
+.radio-label {
+  font: 15px/1.7 "Open Sans", sans-serif;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: pointer;
 }
 
 .btn {

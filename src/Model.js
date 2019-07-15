@@ -8,6 +8,17 @@ const log = m => v => {
 
 const url = (id = "") => `https://api.punkapi.com/v2/beers/${id}`
 
+const props = [
+  { color: "#1abc9c", key: "pH", value: "ph" },
+  { color: "#3498db", key: "Alcohol By Vol", value: "abv" },
+  { color: "#9b59b6", key: "Int. Bitterness Levels", value: "ibu" },
+  { color: "#34495e", key: "Standard Reference Method", value: "srm" },
+  { color: "#f1c40f", key: "Target Final Gravity", value: "target_fg" },
+  { color: "##2ecc71", key: "Target Original Gravity", value: "target_og" },
+  { color: "#c0392b", key: "European Brewery Convention", value: "ebc" },
+  { color: "#7f8c8d", key: "Attenuation Level", value: "attenuation_level" },
+]
+
 const pagination = {
   page: 1,
   per_page: 30,
@@ -74,6 +85,7 @@ const Model = {
   state,
   pagination,
   comparison,
+  props,
 }
 
 export default Model
