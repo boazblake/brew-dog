@@ -19970,13 +19970,17 @@ var Pagination = function Pagination(_ref) {
       mdl = _ref$attrs.mdl,
       load = _ref$attrs.load;
 
+  var format = function format(state) {
+    if (state.per_page <= 0) return state.per_page = 1;
+    if (state.per_page >= 81) return state.per_page = 80;
+  };
+
   var pageBack = function pageBack(mdl) {
     mdl.pagination.page == 1 ? mdl.pagination.page : mdl.pagination.page--;
     load();
   };
 
   var pageForward = function pageForward(mdl) {
-    console.log('heres', mdl);
     mdl.state.data.length == 0 ? mdl.pagination.page : mdl.pagination.page++;
     load();
   };
@@ -19991,10 +19995,15 @@ var Pagination = function Pagination(_ref) {
         }
       }, "Prev"), (0, _mithril.default)("input.input[type=number]", {
         value: mdl.pagination.per_page,
-        min: 0,
+        min: 1,
         max: 80,
+        onblur: function onblur() {
+          return format(mdl.pagination);
+        },
         onchange: function onchange(e) {
-          return mdl.pagination.per_page = e.target.value;
+          mdl.pagination.per_page = e.target.value;
+          format(mdl.pagination);
+          load();
         }
       }), (0, _mithril.default)("button.btn", {
         disabled: mdl.state.data.length == 0,
@@ -20130,6 +20139,7 @@ var makeData = function makeData(data, props) {
 
 var Charts = function Charts() {
   var toPlot = function toPlot(dom, data, props) {
+    dom.style.width = window.innerWidth * 0.8;
     return Plotly.newPlot(dom, makeData(data, getTraceProps(props)), {
       title: "Brew Dog"
     });
@@ -20259,7 +20269,7 @@ var BeerCard = function BeerCard() {
         for: "checkbox-".concat(key)
       }, (0, _mithril.default)("img.img", {
         src: img
-      })), (0, _mithril.default)(".footer", (0, _mithril.default)(".row", [(0, _mithril.default)(_mithril.default.route.Link, {
+      })), (0, _mithril.default)(".beercard-footer", (0, _mithril.default)(".row", [(0, _mithril.default)(_mithril.default.route.Link, {
         class: "link",
         href: "/beer/".concat(dasher(name)),
         onclick: function onclick() {
@@ -20740,7 +20750,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58097" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65011" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

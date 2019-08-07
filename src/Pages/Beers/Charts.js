@@ -7,7 +7,7 @@ const toLineTrace = (prop, data) => ({
   mode: "lines+markers",
   name: prop[2],
   line: { color: prop[1], width: 2 },
-  marker: { color: prop[1], size: 12 },
+  marker: { color: prop[1], size: 12 }
 })
 
 const getTraceProps = compose(
@@ -18,19 +18,20 @@ const getTraceProps = compose(
 const getData = (prop, data) => map(props([prop[0], "name"]), data)
 
 const makeData = (data, props) =>
-  props.map(prop => toLineTrace(prop, getData(prop, data)))
+  props.map((prop) => toLineTrace(prop, getData(prop, data)))
 
 const Charts = () => {
   const toPlot = (dom, data, props) => {
+    dom.style.width = window.innerWidth * 0.8
     return Plotly.newPlot(dom, makeData(data, getTraceProps(props)), {
-      title: `Brew Dog`,
+      title: `Brew Dog`
     })
   }
 
   return {
     oncreate: ({ dom, attrs: { mdl, data } }) => toPlot(dom, data, mdl.props),
     onupdate: ({ dom, attrs: { mdl, data } }) => toPlot(dom, data, mdl.props),
-    view: ({ attrs: { mdl } }) => [m(".chart", { id: "chart" })],
+    view: ({ attrs: { mdl } }) => [m(".chart", { id: "chart" })]
   }
 }
 

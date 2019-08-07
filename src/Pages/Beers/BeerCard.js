@@ -27,7 +27,7 @@ const BeerCard = () => {
               m("img.img", { src: img })
             ),
             m(
-              ".footer",
+              ".beercard-footer",
               m(".row", [
                 m(
                   m.route.Link,
