@@ -1,5 +1,6 @@
 dependencies:
-  mithril: 2.0.0-rc.8
+  mithril: 2.0.1
+  mithril-stream: 2.0.0
   ramda: 0.26.1
 devDependencies:
   cssnano: 4.1.10
@@ -1043,11 +1044,15 @@ packages:
     dev: true
     resolution:
       integrity: sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0=
-  /mithril/2.0.0-rc.8:
+  /mithril-stream/2.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-7anPud4n2FMGIXBQATVpFzclkddXHmJ1TzlqOP9STybk8JZYOPAD2otMYiMDc6sPrTNDY5S6GPDlYNIUY8Qs3Q==
+  /mithril/2.0.1:
     dev: false
     hasBin: true
     resolution:
-      integrity: sha512-7XvrXBW/b/NfSAP6VdMW+g9qq6tc2Pq+DPesVXsbo25W3EBfHFFDHIMk3mQV8UcBpA2qV4xXYplel4JClB7BXA==
+      integrity: sha512-LlfCnWwrnjBUL9cMJaffacB7mKgIl7QbMyJpO0+/vPKHrcq6yTKYR0DlSfDfBDYXi9+l+DZ5yYhgq/QFOtXkjg==
   /mkdirp/0.5.1:
     dependencies:
       minimist: 0.0.8
@@ -1874,7 +1879,8 @@ specifiers:
   cssnano: ^4.1.10
   eslint: ^5.16.0
   esm: ^3.2.25
-  mithril: 2.0.0-rc.8
+  mithril: ^2.0.1
+  mithril-stream: ^2.0.0
   ospec: ^3.1.0
   ramda: ^0.26.1
   sass: ^1.22.4

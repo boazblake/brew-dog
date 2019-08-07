@@ -6,7 +6,8 @@ const Pagination = ({ attrs: { mdl, load } }) => {
     load()
   }
 
-  const pageForward = mdl => {
+    const pageForward = mdl => {
+        console.log('heres',mdl)
     mdl.state.data.length == 0 ? mdl.pagination.page : mdl.pagination.page++
     load()
   }

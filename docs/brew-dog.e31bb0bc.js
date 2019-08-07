@@ -2024,14 +2024,16 @@ module.exports = function($window, mountRedraw) {
 			// Remove these so they don't get overwritten
 			var attrs = {}, onclick, href
 			assign(attrs, vnode.attrs)
-			attrs.component = null
-			attrs.options = null
-			attrs.key = null
+			// The first two are internal, but the rest are magic attributes
+			// that need censored to not screw up rendering.
+			attrs.selector = attrs.options = attrs.key = attrs.oninit =
+			attrs.oncreate = attrs.onbeforeupdate = attrs.onupdate =
+			attrs.onbeforeremove = attrs.onremove = null
 
 			// Do this now so we can get the most current `href` and `disabled`.
 			// Those attributes may also be specified in the selector, and we
 			// should honor that.
-			var child = m(vnode.attrs.component || "a", attrs, vnode.children)
+			var child = m(vnode.attrs.selector || "a", attrs, vnode.children)
 
 			// Let's provide a *right* way to disable a route link, rather than
 			// letting people screw up accessibility on accident.
@@ -2070,17 +2072,18 @@ module.exports = function($window, mountRedraw) {
 					// link target, etc. Nope, this isn't just for blind people.
 					if (
 						// Skip if `onclick` prevented default
-						result === false || !e.defaultPrevented &&
+						result !== false && !e.defaultPrevented &&
 						// Ignore everything but left clicks
 						(e.button === 0 || e.which === 0 || e.which === 1) &&
 						// Let the browser handle `target=_blank`, etc.
 						(!e.currentTarget.target || e.currentTarget.target === "_self") &&
 						// No modifier keys
 						!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey
-					) return
-					e.preventDefault()
-					e.redraw = false
-					route.set(href, null, options)
+					) {
+						e.preventDefault()
+						e.redraw = false
+						route.set(href, null, options)
+					}
 				}
 			}
 			return child
@@ -2319,271 +2322,7 @@ function open(s) {
 
 var _default = Stream;
 exports.default = _default;
-},{}],"src/model.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _mithril = _interopRequireDefault(require("mithril"));
-
-var _mithrilStream = _interopRequireDefault(require("mithril-stream"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var log = function log(m) {
-  return function (v) {
-    console.log(m, v);
-    return v;
-  };
-};
-
-var url = function url() {
-  var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
-  return "https://api.punkapi.com/v2/beers/".concat(id);
-};
-
-var props = [{
-  color: "#1abc9c",
-  key: "pH",
-  value: "ph"
-}, {
-  color: "#3498db",
-  key: "Alcohol By Vol",
-  value: "abv"
-}, {
-  color: "#9b59b6",
-  key: "Int. Bitterness Levels",
-  value: "ibu"
-}, {
-  color: "#34495e",
-  key: "Standard Reference Method",
-  value: "srm"
-}, {
-  color: "#f1c40f",
-  key: "Target Final Gravity",
-  value: "target_fg"
-}, {
-  color: "##2ecc71",
-  key: "Target Original Gravity",
-  value: "target_og"
-}, {
-  color: "#c0392b",
-  key: "European Brewery Convention",
-  value: "ebc"
-}, {
-  color: "#7f8c8d",
-  key: "Attenuation Level",
-  value: "attenuation_level"
-}];
-var pagination = {
-  page: 1,
-  per_page: 30
-};
-var comparison = {
-  beerList: {},
-  selections: false,
-  sortBy: "abv",
-  modal: undefined
-};
-var state = {
-  profile: "",
-  isLoading: false,
-  loadingProgress: {
-    max: 0,
-    value: 0
-  },
-  data: undefined,
-  errors: undefined,
-  view: "cards"
-};
-
-function onProgress(e) {
-  if (e.lengthComputable) {
-    model.state.loadingProgress.max = e.total;
-    model.state.loadingProgress.value = e.loaded;
-
-    _mithril.default.redraw();
-  }
-}
-
-function onLoad() {
-  return false;
-}
-
-function onLoadStart() {
-  model.state.isLoading = true;
-  return false;
-}
-
-function onLoadEnd() {
-  model.state.isLoading = false;
-  model.state.loadingProgress.max = 0;
-  model.state.loadingProgress.value = 0;
-  return false;
-}
-
-var xhrProgress = {
-  config: function config(xhr) {
-    console.log(xhr);
-    xhr.onprogress = onProgress;
-    xhr.onload = onLoad;
-    xhr.onloadstart = onLoadStart;
-    xhr.onloadend = onLoadEnd;
-  }
-};
-
-var http = function http(url, params) {
-  return _mithril.default.request(_objectSpread({
-    url: url,
-    params: params
-  }, {
-    xhrProgress: xhrProgress
-  }));
-};
-
-var Model = {
-  http: http,
-  log: log,
-  url: url,
-  state: state,
-  pagination: pagination,
-  comparison: comparison,
-  props: props
-};
-var _default = Model;
-exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","mithril-stream":"node_modules/mithril-stream/stream.mjs"}],"src/Components/Pagination/index.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _mithril = _interopRequireDefault(require("mithril"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Pagination = function Pagination(_ref) {
-  var _ref$attrs = _ref.attrs,
-      mdl = _ref$attrs.mdl,
-      load = _ref$attrs.load;
-
-  var pageBack = function pageBack(mdl) {
-    mdl.pagination.page == 1 ? mdl.pagination.page : mdl.pagination.page--;
-    load();
-  };
-
-  var pageForward = function pageForward(mdl) {
-    mdl.state.data.length == 0 ? mdl.pagination.page : mdl.pagination.page++;
-    load();
-  };
-
-  return {
-    view: function view(_ref2) {
-      var mdl = _ref2.attrs.mdl;
-      return (0, _mithril.default)(".pagination", [(0, _mithril.default)("button.btn", {
-        disabled: mdl.pagination.page == 1,
-        onclick: function onclick() {
-          return pageBack(mdl);
-        }
-      }, "Prev"), (0, _mithril.default)("input.input[type=number]", {
-        value: mdl.pagination.per_page,
-        min: 0,
-        max: 80,
-        onchange: function onchange(e) {
-          return mdl.pagination.per_page = e.target.value;
-        }
-      }), (0, _mithril.default)("button.btn", {
-        disabled: mdl.state.data.length == 0,
-        onclick: function onclick() {
-          return pageForward(mdl);
-        }
-      }, "Next")]);
-    }
-  };
-};
-
-var _default = Pagination;
-exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/Actions.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _mithril = _interopRequireDefault(require("mithril"));
-
-var _index = _interopRequireDefault(require("../../Components/Pagination/index.js"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Actions = {
-  view: function view(_ref) {
-    var _ref$attrs = _ref.attrs,
-        mdl = _ref$attrs.mdl,
-        load = _ref$attrs.load;
-    return (0, _mithril.default)("header.container.actions", mdl.comparison.selections ? (0, _mithril.default)("button.btn", {
-      onclick: function onclick() {
-        mdl.comparison.beerList = {};
-        mdl.comparison.selections = false;
-      }
-    }, "Back to List") : [mdl.state.view == "cards" && [(0, _mithril.default)("button.btn", {
-      disabled: !Object.values(mdl.comparison.beerList).includes(true),
-      onclick: function onclick() {
-        return mdl.comparison.selections = true;
-      }
-    }, "Compare Selected"), (0, _mithril.default)("select.select", {
-      onchange: function onchange(e) {
-        return mdl.comparison.sortBy = e.target.value;
-      },
-      value: mdl.comparison.sortBy
-    }, mdl.props.map(function (prop, key) {
-      return (0, _mithril.default)("option", {
-        key: key,
-        value: prop.value
-      }, prop.key);
-    }))], (0, _mithril.default)(_index.default, {
-      mdl: mdl,
-      load: load
-    }), (0, _mithril.default)("select.select", {
-      onchange: function onchange(e) {
-        return mdl.state.view = e.target.value;
-      },
-      value: mdl.state.view
-    }, [(0, _mithril.default)("option.option", {
-      value: "cards"
-    }, "Card View"), (0, _mithril.default)("option.option", {
-      value: "charts"
-    }, "Charts View")]), mdl.state.view == "charts" && [(0, _mithril.default)("ul.action-radios", mdl.props.map(function (prop, key) {
-      return (0, _mithril.default)(".", [(0, _mithril.default)("input[type=radio].charts-radio", {
-        key: key,
-        name: prop.value,
-        value: prop.value,
-        id: prop.value,
-        checked: prop.checked,
-        onclick: function onclick() {
-          return prop.checked = !prop.checked;
-        }
-      }), (0, _mithril.default)("label.radio-label", {
-        key: key,
-        for: prop.value
-      }, prop.key)]);
-    }))]]);
-  }
-};
-var _default = Actions;
-exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","../../Components/Pagination/index.js":"src/Components/Pagination/index.js"}],"node_modules/ramda/es/F.js":[function(require,module,exports) {
+},{}],"node_modules/ramda/es/F.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20050,7 +19789,303 @@ var _zipWith = _interopRequireDefault(require("./zipWith.js"));
 var _thunkify = _interopRequireDefault(require("./thunkify.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./F.js":"node_modules/ramda/es/F.js","./T.js":"node_modules/ramda/es/T.js","./__.js":"node_modules/ramda/es/__.js","./add.js":"node_modules/ramda/es/add.js","./addIndex.js":"node_modules/ramda/es/addIndex.js","./adjust.js":"node_modules/ramda/es/adjust.js","./all.js":"node_modules/ramda/es/all.js","./allPass.js":"node_modules/ramda/es/allPass.js","./always.js":"node_modules/ramda/es/always.js","./and.js":"node_modules/ramda/es/and.js","./any.js":"node_modules/ramda/es/any.js","./anyPass.js":"node_modules/ramda/es/anyPass.js","./ap.js":"node_modules/ramda/es/ap.js","./aperture.js":"node_modules/ramda/es/aperture.js","./append.js":"node_modules/ramda/es/append.js","./apply.js":"node_modules/ramda/es/apply.js","./applySpec.js":"node_modules/ramda/es/applySpec.js","./applyTo.js":"node_modules/ramda/es/applyTo.js","./ascend.js":"node_modules/ramda/es/ascend.js","./assoc.js":"node_modules/ramda/es/assoc.js","./assocPath.js":"node_modules/ramda/es/assocPath.js","./binary.js":"node_modules/ramda/es/binary.js","./bind.js":"node_modules/ramda/es/bind.js","./both.js":"node_modules/ramda/es/both.js","./call.js":"node_modules/ramda/es/call.js","./chain.js":"node_modules/ramda/es/chain.js","./clamp.js":"node_modules/ramda/es/clamp.js","./clone.js":"node_modules/ramda/es/clone.js","./comparator.js":"node_modules/ramda/es/comparator.js","./complement.js":"node_modules/ramda/es/complement.js","./compose.js":"node_modules/ramda/es/compose.js","./composeK.js":"node_modules/ramda/es/composeK.js","./composeP.js":"node_modules/ramda/es/composeP.js","./composeWith.js":"node_modules/ramda/es/composeWith.js","./concat.js":"node_modules/ramda/es/concat.js","./cond.js":"node_modules/ramda/es/cond.js","./construct.js":"node_modules/ramda/es/construct.js","./constructN.js":"node_modules/ramda/es/constructN.js","./contains.js":"node_modules/ramda/es/contains.js","./converge.js":"node_modules/ramda/es/converge.js","./countBy.js":"node_modules/ramda/es/countBy.js","./curry.js":"node_modules/ramda/es/curry.js","./curryN.js":"node_modules/ramda/es/curryN.js","./dec.js":"node_modules/ramda/es/dec.js","./defaultTo.js":"node_modules/ramda/es/defaultTo.js","./descend.js":"node_modules/ramda/es/descend.js","./difference.js":"node_modules/ramda/es/difference.js","./differenceWith.js":"node_modules/ramda/es/differenceWith.js","./dissoc.js":"node_modules/ramda/es/dissoc.js","./dissocPath.js":"node_modules/ramda/es/dissocPath.js","./divide.js":"node_modules/ramda/es/divide.js","./drop.js":"node_modules/ramda/es/drop.js","./dropLast.js":"node_modules/ramda/es/dropLast.js","./dropLastWhile.js":"node_modules/ramda/es/dropLastWhile.js","./dropRepeats.js":"node_modules/ramda/es/dropRepeats.js","./dropRepeatsWith.js":"node_modules/ramda/es/dropRepeatsWith.js","./dropWhile.js":"node_modules/ramda/es/dropWhile.js","./either.js":"node_modules/ramda/es/either.js","./empty.js":"node_modules/ramda/es/empty.js","./endsWith.js":"node_modules/ramda/es/endsWith.js","./eqBy.js":"node_modules/ramda/es/eqBy.js","./eqProps.js":"node_modules/ramda/es/eqProps.js","./equals.js":"node_modules/ramda/es/equals.js","./evolve.js":"node_modules/ramda/es/evolve.js","./filter.js":"node_modules/ramda/es/filter.js","./find.js":"node_modules/ramda/es/find.js","./findIndex.js":"node_modules/ramda/es/findIndex.js","./findLast.js":"node_modules/ramda/es/findLast.js","./findLastIndex.js":"node_modules/ramda/es/findLastIndex.js","./flatten.js":"node_modules/ramda/es/flatten.js","./flip.js":"node_modules/ramda/es/flip.js","./forEach.js":"node_modules/ramda/es/forEach.js","./forEachObjIndexed.js":"node_modules/ramda/es/forEachObjIndexed.js","./fromPairs.js":"node_modules/ramda/es/fromPairs.js","./groupBy.js":"node_modules/ramda/es/groupBy.js","./groupWith.js":"node_modules/ramda/es/groupWith.js","./gt.js":"node_modules/ramda/es/gt.js","./gte.js":"node_modules/ramda/es/gte.js","./has.js":"node_modules/ramda/es/has.js","./hasIn.js":"node_modules/ramda/es/hasIn.js","./hasPath.js":"node_modules/ramda/es/hasPath.js","./head.js":"node_modules/ramda/es/head.js","./identical.js":"node_modules/ramda/es/identical.js","./identity.js":"node_modules/ramda/es/identity.js","./ifElse.js":"node_modules/ramda/es/ifElse.js","./inc.js":"node_modules/ramda/es/inc.js","./includes.js":"node_modules/ramda/es/includes.js","./indexBy.js":"node_modules/ramda/es/indexBy.js","./indexOf.js":"node_modules/ramda/es/indexOf.js","./init.js":"node_modules/ramda/es/init.js","./innerJoin.js":"node_modules/ramda/es/innerJoin.js","./insert.js":"node_modules/ramda/es/insert.js","./insertAll.js":"node_modules/ramda/es/insertAll.js","./intersection.js":"node_modules/ramda/es/intersection.js","./intersperse.js":"node_modules/ramda/es/intersperse.js","./into.js":"node_modules/ramda/es/into.js","./invert.js":"node_modules/ramda/es/invert.js","./invertObj.js":"node_modules/ramda/es/invertObj.js","./invoker.js":"node_modules/ramda/es/invoker.js","./is.js":"node_modules/ramda/es/is.js","./isEmpty.js":"node_modules/ramda/es/isEmpty.js","./isNil.js":"node_modules/ramda/es/isNil.js","./join.js":"node_modules/ramda/es/join.js","./juxt.js":"node_modules/ramda/es/juxt.js","./keys.js":"node_modules/ramda/es/keys.js","./keysIn.js":"node_modules/ramda/es/keysIn.js","./last.js":"node_modules/ramda/es/last.js","./lastIndexOf.js":"node_modules/ramda/es/lastIndexOf.js","./length.js":"node_modules/ramda/es/length.js","./lens.js":"node_modules/ramda/es/lens.js","./lensIndex.js":"node_modules/ramda/es/lensIndex.js","./lensPath.js":"node_modules/ramda/es/lensPath.js","./lensProp.js":"node_modules/ramda/es/lensProp.js","./lift.js":"node_modules/ramda/es/lift.js","./liftN.js":"node_modules/ramda/es/liftN.js","./lt.js":"node_modules/ramda/es/lt.js","./lte.js":"node_modules/ramda/es/lte.js","./map.js":"node_modules/ramda/es/map.js","./mapAccum.js":"node_modules/ramda/es/mapAccum.js","./mapAccumRight.js":"node_modules/ramda/es/mapAccumRight.js","./mapObjIndexed.js":"node_modules/ramda/es/mapObjIndexed.js","./match.js":"node_modules/ramda/es/match.js","./mathMod.js":"node_modules/ramda/es/mathMod.js","./max.js":"node_modules/ramda/es/max.js","./maxBy.js":"node_modules/ramda/es/maxBy.js","./mean.js":"node_modules/ramda/es/mean.js","./median.js":"node_modules/ramda/es/median.js","./memoizeWith.js":"node_modules/ramda/es/memoizeWith.js","./merge.js":"node_modules/ramda/es/merge.js","./mergeAll.js":"node_modules/ramda/es/mergeAll.js","./mergeDeepLeft.js":"node_modules/ramda/es/mergeDeepLeft.js","./mergeDeepRight.js":"node_modules/ramda/es/mergeDeepRight.js","./mergeDeepWith.js":"node_modules/ramda/es/mergeDeepWith.js","./mergeDeepWithKey.js":"node_modules/ramda/es/mergeDeepWithKey.js","./mergeLeft.js":"node_modules/ramda/es/mergeLeft.js","./mergeRight.js":"node_modules/ramda/es/mergeRight.js","./mergeWith.js":"node_modules/ramda/es/mergeWith.js","./mergeWithKey.js":"node_modules/ramda/es/mergeWithKey.js","./min.js":"node_modules/ramda/es/min.js","./minBy.js":"node_modules/ramda/es/minBy.js","./modulo.js":"node_modules/ramda/es/modulo.js","./move.js":"node_modules/ramda/es/move.js","./multiply.js":"node_modules/ramda/es/multiply.js","./nAry.js":"node_modules/ramda/es/nAry.js","./negate.js":"node_modules/ramda/es/negate.js","./none.js":"node_modules/ramda/es/none.js","./not.js":"node_modules/ramda/es/not.js","./nth.js":"node_modules/ramda/es/nth.js","./nthArg.js":"node_modules/ramda/es/nthArg.js","./o.js":"node_modules/ramda/es/o.js","./objOf.js":"node_modules/ramda/es/objOf.js","./of.js":"node_modules/ramda/es/of.js","./omit.js":"node_modules/ramda/es/omit.js","./once.js":"node_modules/ramda/es/once.js","./or.js":"node_modules/ramda/es/or.js","./otherwise.js":"node_modules/ramda/es/otherwise.js","./over.js":"node_modules/ramda/es/over.js","./pair.js":"node_modules/ramda/es/pair.js","./partial.js":"node_modules/ramda/es/partial.js","./partialRight.js":"node_modules/ramda/es/partialRight.js","./partition.js":"node_modules/ramda/es/partition.js","./path.js":"node_modules/ramda/es/path.js","./pathEq.js":"node_modules/ramda/es/pathEq.js","./pathOr.js":"node_modules/ramda/es/pathOr.js","./pathSatisfies.js":"node_modules/ramda/es/pathSatisfies.js","./pick.js":"node_modules/ramda/es/pick.js","./pickAll.js":"node_modules/ramda/es/pickAll.js","./pickBy.js":"node_modules/ramda/es/pickBy.js","./pipe.js":"node_modules/ramda/es/pipe.js","./pipeK.js":"node_modules/ramda/es/pipeK.js","./pipeP.js":"node_modules/ramda/es/pipeP.js","./pipeWith.js":"node_modules/ramda/es/pipeWith.js","./pluck.js":"node_modules/ramda/es/pluck.js","./prepend.js":"node_modules/ramda/es/prepend.js","./product.js":"node_modules/ramda/es/product.js","./project.js":"node_modules/ramda/es/project.js","./prop.js":"node_modules/ramda/es/prop.js","./propEq.js":"node_modules/ramda/es/propEq.js","./propIs.js":"node_modules/ramda/es/propIs.js","./propOr.js":"node_modules/ramda/es/propOr.js","./propSatisfies.js":"node_modules/ramda/es/propSatisfies.js","./props.js":"node_modules/ramda/es/props.js","./range.js":"node_modules/ramda/es/range.js","./reduce.js":"node_modules/ramda/es/reduce.js","./reduceBy.js":"node_modules/ramda/es/reduceBy.js","./reduceRight.js":"node_modules/ramda/es/reduceRight.js","./reduceWhile.js":"node_modules/ramda/es/reduceWhile.js","./reduced.js":"node_modules/ramda/es/reduced.js","./reject.js":"node_modules/ramda/es/reject.js","./remove.js":"node_modules/ramda/es/remove.js","./repeat.js":"node_modules/ramda/es/repeat.js","./replace.js":"node_modules/ramda/es/replace.js","./reverse.js":"node_modules/ramda/es/reverse.js","./scan.js":"node_modules/ramda/es/scan.js","./sequence.js":"node_modules/ramda/es/sequence.js","./set.js":"node_modules/ramda/es/set.js","./slice.js":"node_modules/ramda/es/slice.js","./sort.js":"node_modules/ramda/es/sort.js","./sortBy.js":"node_modules/ramda/es/sortBy.js","./sortWith.js":"node_modules/ramda/es/sortWith.js","./split.js":"node_modules/ramda/es/split.js","./splitAt.js":"node_modules/ramda/es/splitAt.js","./splitEvery.js":"node_modules/ramda/es/splitEvery.js","./splitWhen.js":"node_modules/ramda/es/splitWhen.js","./startsWith.js":"node_modules/ramda/es/startsWith.js","./subtract.js":"node_modules/ramda/es/subtract.js","./sum.js":"node_modules/ramda/es/sum.js","./symmetricDifference.js":"node_modules/ramda/es/symmetricDifference.js","./symmetricDifferenceWith.js":"node_modules/ramda/es/symmetricDifferenceWith.js","./tail.js":"node_modules/ramda/es/tail.js","./take.js":"node_modules/ramda/es/take.js","./takeLast.js":"node_modules/ramda/es/takeLast.js","./takeLastWhile.js":"node_modules/ramda/es/takeLastWhile.js","./takeWhile.js":"node_modules/ramda/es/takeWhile.js","./tap.js":"node_modules/ramda/es/tap.js","./test.js":"node_modules/ramda/es/test.js","./then.js":"node_modules/ramda/es/then.js","./times.js":"node_modules/ramda/es/times.js","./toLower.js":"node_modules/ramda/es/toLower.js","./toPairs.js":"node_modules/ramda/es/toPairs.js","./toPairsIn.js":"node_modules/ramda/es/toPairsIn.js","./toString.js":"node_modules/ramda/es/toString.js","./toUpper.js":"node_modules/ramda/es/toUpper.js","./transduce.js":"node_modules/ramda/es/transduce.js","./transpose.js":"node_modules/ramda/es/transpose.js","./traverse.js":"node_modules/ramda/es/traverse.js","./trim.js":"node_modules/ramda/es/trim.js","./tryCatch.js":"node_modules/ramda/es/tryCatch.js","./type.js":"node_modules/ramda/es/type.js","./unapply.js":"node_modules/ramda/es/unapply.js","./unary.js":"node_modules/ramda/es/unary.js","./uncurryN.js":"node_modules/ramda/es/uncurryN.js","./unfold.js":"node_modules/ramda/es/unfold.js","./union.js":"node_modules/ramda/es/union.js","./unionWith.js":"node_modules/ramda/es/unionWith.js","./uniq.js":"node_modules/ramda/es/uniq.js","./uniqBy.js":"node_modules/ramda/es/uniqBy.js","./uniqWith.js":"node_modules/ramda/es/uniqWith.js","./unless.js":"node_modules/ramda/es/unless.js","./unnest.js":"node_modules/ramda/es/unnest.js","./until.js":"node_modules/ramda/es/until.js","./update.js":"node_modules/ramda/es/update.js","./useWith.js":"node_modules/ramda/es/useWith.js","./values.js":"node_modules/ramda/es/values.js","./valuesIn.js":"node_modules/ramda/es/valuesIn.js","./view.js":"node_modules/ramda/es/view.js","./when.js":"node_modules/ramda/es/when.js","./where.js":"node_modules/ramda/es/where.js","./whereEq.js":"node_modules/ramda/es/whereEq.js","./without.js":"node_modules/ramda/es/without.js","./xprod.js":"node_modules/ramda/es/xprod.js","./zip.js":"node_modules/ramda/es/zip.js","./zipObj.js":"node_modules/ramda/es/zipObj.js","./zipWith.js":"node_modules/ramda/es/zipWith.js","./thunkify.js":"node_modules/ramda/es/thunkify.js"}],"src/Pages/Beers/Charts.js":[function(require,module,exports) {
+},{"./F.js":"node_modules/ramda/es/F.js","./T.js":"node_modules/ramda/es/T.js","./__.js":"node_modules/ramda/es/__.js","./add.js":"node_modules/ramda/es/add.js","./addIndex.js":"node_modules/ramda/es/addIndex.js","./adjust.js":"node_modules/ramda/es/adjust.js","./all.js":"node_modules/ramda/es/all.js","./allPass.js":"node_modules/ramda/es/allPass.js","./always.js":"node_modules/ramda/es/always.js","./and.js":"node_modules/ramda/es/and.js","./any.js":"node_modules/ramda/es/any.js","./anyPass.js":"node_modules/ramda/es/anyPass.js","./ap.js":"node_modules/ramda/es/ap.js","./aperture.js":"node_modules/ramda/es/aperture.js","./append.js":"node_modules/ramda/es/append.js","./apply.js":"node_modules/ramda/es/apply.js","./applySpec.js":"node_modules/ramda/es/applySpec.js","./applyTo.js":"node_modules/ramda/es/applyTo.js","./ascend.js":"node_modules/ramda/es/ascend.js","./assoc.js":"node_modules/ramda/es/assoc.js","./assocPath.js":"node_modules/ramda/es/assocPath.js","./binary.js":"node_modules/ramda/es/binary.js","./bind.js":"node_modules/ramda/es/bind.js","./both.js":"node_modules/ramda/es/both.js","./call.js":"node_modules/ramda/es/call.js","./chain.js":"node_modules/ramda/es/chain.js","./clamp.js":"node_modules/ramda/es/clamp.js","./clone.js":"node_modules/ramda/es/clone.js","./comparator.js":"node_modules/ramda/es/comparator.js","./complement.js":"node_modules/ramda/es/complement.js","./compose.js":"node_modules/ramda/es/compose.js","./composeK.js":"node_modules/ramda/es/composeK.js","./composeP.js":"node_modules/ramda/es/composeP.js","./composeWith.js":"node_modules/ramda/es/composeWith.js","./concat.js":"node_modules/ramda/es/concat.js","./cond.js":"node_modules/ramda/es/cond.js","./construct.js":"node_modules/ramda/es/construct.js","./constructN.js":"node_modules/ramda/es/constructN.js","./contains.js":"node_modules/ramda/es/contains.js","./converge.js":"node_modules/ramda/es/converge.js","./countBy.js":"node_modules/ramda/es/countBy.js","./curry.js":"node_modules/ramda/es/curry.js","./curryN.js":"node_modules/ramda/es/curryN.js","./dec.js":"node_modules/ramda/es/dec.js","./defaultTo.js":"node_modules/ramda/es/defaultTo.js","./descend.js":"node_modules/ramda/es/descend.js","./difference.js":"node_modules/ramda/es/difference.js","./differenceWith.js":"node_modules/ramda/es/differenceWith.js","./dissoc.js":"node_modules/ramda/es/dissoc.js","./dissocPath.js":"node_modules/ramda/es/dissocPath.js","./divide.js":"node_modules/ramda/es/divide.js","./drop.js":"node_modules/ramda/es/drop.js","./dropLast.js":"node_modules/ramda/es/dropLast.js","./dropLastWhile.js":"node_modules/ramda/es/dropLastWhile.js","./dropRepeats.js":"node_modules/ramda/es/dropRepeats.js","./dropRepeatsWith.js":"node_modules/ramda/es/dropRepeatsWith.js","./dropWhile.js":"node_modules/ramda/es/dropWhile.js","./either.js":"node_modules/ramda/es/either.js","./empty.js":"node_modules/ramda/es/empty.js","./endsWith.js":"node_modules/ramda/es/endsWith.js","./eqBy.js":"node_modules/ramda/es/eqBy.js","./eqProps.js":"node_modules/ramda/es/eqProps.js","./equals.js":"node_modules/ramda/es/equals.js","./evolve.js":"node_modules/ramda/es/evolve.js","./filter.js":"node_modules/ramda/es/filter.js","./find.js":"node_modules/ramda/es/find.js","./findIndex.js":"node_modules/ramda/es/findIndex.js","./findLast.js":"node_modules/ramda/es/findLast.js","./findLastIndex.js":"node_modules/ramda/es/findLastIndex.js","./flatten.js":"node_modules/ramda/es/flatten.js","./flip.js":"node_modules/ramda/es/flip.js","./forEach.js":"node_modules/ramda/es/forEach.js","./forEachObjIndexed.js":"node_modules/ramda/es/forEachObjIndexed.js","./fromPairs.js":"node_modules/ramda/es/fromPairs.js","./groupBy.js":"node_modules/ramda/es/groupBy.js","./groupWith.js":"node_modules/ramda/es/groupWith.js","./gt.js":"node_modules/ramda/es/gt.js","./gte.js":"node_modules/ramda/es/gte.js","./has.js":"node_modules/ramda/es/has.js","./hasIn.js":"node_modules/ramda/es/hasIn.js","./hasPath.js":"node_modules/ramda/es/hasPath.js","./head.js":"node_modules/ramda/es/head.js","./identical.js":"node_modules/ramda/es/identical.js","./identity.js":"node_modules/ramda/es/identity.js","./ifElse.js":"node_modules/ramda/es/ifElse.js","./inc.js":"node_modules/ramda/es/inc.js","./includes.js":"node_modules/ramda/es/includes.js","./indexBy.js":"node_modules/ramda/es/indexBy.js","./indexOf.js":"node_modules/ramda/es/indexOf.js","./init.js":"node_modules/ramda/es/init.js","./innerJoin.js":"node_modules/ramda/es/innerJoin.js","./insert.js":"node_modules/ramda/es/insert.js","./insertAll.js":"node_modules/ramda/es/insertAll.js","./intersection.js":"node_modules/ramda/es/intersection.js","./intersperse.js":"node_modules/ramda/es/intersperse.js","./into.js":"node_modules/ramda/es/into.js","./invert.js":"node_modules/ramda/es/invert.js","./invertObj.js":"node_modules/ramda/es/invertObj.js","./invoker.js":"node_modules/ramda/es/invoker.js","./is.js":"node_modules/ramda/es/is.js","./isEmpty.js":"node_modules/ramda/es/isEmpty.js","./isNil.js":"node_modules/ramda/es/isNil.js","./join.js":"node_modules/ramda/es/join.js","./juxt.js":"node_modules/ramda/es/juxt.js","./keys.js":"node_modules/ramda/es/keys.js","./keysIn.js":"node_modules/ramda/es/keysIn.js","./last.js":"node_modules/ramda/es/last.js","./lastIndexOf.js":"node_modules/ramda/es/lastIndexOf.js","./length.js":"node_modules/ramda/es/length.js","./lens.js":"node_modules/ramda/es/lens.js","./lensIndex.js":"node_modules/ramda/es/lensIndex.js","./lensPath.js":"node_modules/ramda/es/lensPath.js","./lensProp.js":"node_modules/ramda/es/lensProp.js","./lift.js":"node_modules/ramda/es/lift.js","./liftN.js":"node_modules/ramda/es/liftN.js","./lt.js":"node_modules/ramda/es/lt.js","./lte.js":"node_modules/ramda/es/lte.js","./map.js":"node_modules/ramda/es/map.js","./mapAccum.js":"node_modules/ramda/es/mapAccum.js","./mapAccumRight.js":"node_modules/ramda/es/mapAccumRight.js","./mapObjIndexed.js":"node_modules/ramda/es/mapObjIndexed.js","./match.js":"node_modules/ramda/es/match.js","./mathMod.js":"node_modules/ramda/es/mathMod.js","./max.js":"node_modules/ramda/es/max.js","./maxBy.js":"node_modules/ramda/es/maxBy.js","./mean.js":"node_modules/ramda/es/mean.js","./median.js":"node_modules/ramda/es/median.js","./memoizeWith.js":"node_modules/ramda/es/memoizeWith.js","./merge.js":"node_modules/ramda/es/merge.js","./mergeAll.js":"node_modules/ramda/es/mergeAll.js","./mergeDeepLeft.js":"node_modules/ramda/es/mergeDeepLeft.js","./mergeDeepRight.js":"node_modules/ramda/es/mergeDeepRight.js","./mergeDeepWith.js":"node_modules/ramda/es/mergeDeepWith.js","./mergeDeepWithKey.js":"node_modules/ramda/es/mergeDeepWithKey.js","./mergeLeft.js":"node_modules/ramda/es/mergeLeft.js","./mergeRight.js":"node_modules/ramda/es/mergeRight.js","./mergeWith.js":"node_modules/ramda/es/mergeWith.js","./mergeWithKey.js":"node_modules/ramda/es/mergeWithKey.js","./min.js":"node_modules/ramda/es/min.js","./minBy.js":"node_modules/ramda/es/minBy.js","./modulo.js":"node_modules/ramda/es/modulo.js","./move.js":"node_modules/ramda/es/move.js","./multiply.js":"node_modules/ramda/es/multiply.js","./nAry.js":"node_modules/ramda/es/nAry.js","./negate.js":"node_modules/ramda/es/negate.js","./none.js":"node_modules/ramda/es/none.js","./not.js":"node_modules/ramda/es/not.js","./nth.js":"node_modules/ramda/es/nth.js","./nthArg.js":"node_modules/ramda/es/nthArg.js","./o.js":"node_modules/ramda/es/o.js","./objOf.js":"node_modules/ramda/es/objOf.js","./of.js":"node_modules/ramda/es/of.js","./omit.js":"node_modules/ramda/es/omit.js","./once.js":"node_modules/ramda/es/once.js","./or.js":"node_modules/ramda/es/or.js","./otherwise.js":"node_modules/ramda/es/otherwise.js","./over.js":"node_modules/ramda/es/over.js","./pair.js":"node_modules/ramda/es/pair.js","./partial.js":"node_modules/ramda/es/partial.js","./partialRight.js":"node_modules/ramda/es/partialRight.js","./partition.js":"node_modules/ramda/es/partition.js","./path.js":"node_modules/ramda/es/path.js","./pathEq.js":"node_modules/ramda/es/pathEq.js","./pathOr.js":"node_modules/ramda/es/pathOr.js","./pathSatisfies.js":"node_modules/ramda/es/pathSatisfies.js","./pick.js":"node_modules/ramda/es/pick.js","./pickAll.js":"node_modules/ramda/es/pickAll.js","./pickBy.js":"node_modules/ramda/es/pickBy.js","./pipe.js":"node_modules/ramda/es/pipe.js","./pipeK.js":"node_modules/ramda/es/pipeK.js","./pipeP.js":"node_modules/ramda/es/pipeP.js","./pipeWith.js":"node_modules/ramda/es/pipeWith.js","./pluck.js":"node_modules/ramda/es/pluck.js","./prepend.js":"node_modules/ramda/es/prepend.js","./product.js":"node_modules/ramda/es/product.js","./project.js":"node_modules/ramda/es/project.js","./prop.js":"node_modules/ramda/es/prop.js","./propEq.js":"node_modules/ramda/es/propEq.js","./propIs.js":"node_modules/ramda/es/propIs.js","./propOr.js":"node_modules/ramda/es/propOr.js","./propSatisfies.js":"node_modules/ramda/es/propSatisfies.js","./props.js":"node_modules/ramda/es/props.js","./range.js":"node_modules/ramda/es/range.js","./reduce.js":"node_modules/ramda/es/reduce.js","./reduceBy.js":"node_modules/ramda/es/reduceBy.js","./reduceRight.js":"node_modules/ramda/es/reduceRight.js","./reduceWhile.js":"node_modules/ramda/es/reduceWhile.js","./reduced.js":"node_modules/ramda/es/reduced.js","./reject.js":"node_modules/ramda/es/reject.js","./remove.js":"node_modules/ramda/es/remove.js","./repeat.js":"node_modules/ramda/es/repeat.js","./replace.js":"node_modules/ramda/es/replace.js","./reverse.js":"node_modules/ramda/es/reverse.js","./scan.js":"node_modules/ramda/es/scan.js","./sequence.js":"node_modules/ramda/es/sequence.js","./set.js":"node_modules/ramda/es/set.js","./slice.js":"node_modules/ramda/es/slice.js","./sort.js":"node_modules/ramda/es/sort.js","./sortBy.js":"node_modules/ramda/es/sortBy.js","./sortWith.js":"node_modules/ramda/es/sortWith.js","./split.js":"node_modules/ramda/es/split.js","./splitAt.js":"node_modules/ramda/es/splitAt.js","./splitEvery.js":"node_modules/ramda/es/splitEvery.js","./splitWhen.js":"node_modules/ramda/es/splitWhen.js","./startsWith.js":"node_modules/ramda/es/startsWith.js","./subtract.js":"node_modules/ramda/es/subtract.js","./sum.js":"node_modules/ramda/es/sum.js","./symmetricDifference.js":"node_modules/ramda/es/symmetricDifference.js","./symmetricDifferenceWith.js":"node_modules/ramda/es/symmetricDifferenceWith.js","./tail.js":"node_modules/ramda/es/tail.js","./take.js":"node_modules/ramda/es/take.js","./takeLast.js":"node_modules/ramda/es/takeLast.js","./takeLastWhile.js":"node_modules/ramda/es/takeLastWhile.js","./takeWhile.js":"node_modules/ramda/es/takeWhile.js","./tap.js":"node_modules/ramda/es/tap.js","./test.js":"node_modules/ramda/es/test.js","./then.js":"node_modules/ramda/es/then.js","./times.js":"node_modules/ramda/es/times.js","./toLower.js":"node_modules/ramda/es/toLower.js","./toPairs.js":"node_modules/ramda/es/toPairs.js","./toPairsIn.js":"node_modules/ramda/es/toPairsIn.js","./toString.js":"node_modules/ramda/es/toString.js","./toUpper.js":"node_modules/ramda/es/toUpper.js","./transduce.js":"node_modules/ramda/es/transduce.js","./transpose.js":"node_modules/ramda/es/transpose.js","./traverse.js":"node_modules/ramda/es/traverse.js","./trim.js":"node_modules/ramda/es/trim.js","./tryCatch.js":"node_modules/ramda/es/tryCatch.js","./type.js":"node_modules/ramda/es/type.js","./unapply.js":"node_modules/ramda/es/unapply.js","./unary.js":"node_modules/ramda/es/unary.js","./uncurryN.js":"node_modules/ramda/es/uncurryN.js","./unfold.js":"node_modules/ramda/es/unfold.js","./union.js":"node_modules/ramda/es/union.js","./unionWith.js":"node_modules/ramda/es/unionWith.js","./uniq.js":"node_modules/ramda/es/uniq.js","./uniqBy.js":"node_modules/ramda/es/uniqBy.js","./uniqWith.js":"node_modules/ramda/es/uniqWith.js","./unless.js":"node_modules/ramda/es/unless.js","./unnest.js":"node_modules/ramda/es/unnest.js","./until.js":"node_modules/ramda/es/until.js","./update.js":"node_modules/ramda/es/update.js","./useWith.js":"node_modules/ramda/es/useWith.js","./values.js":"node_modules/ramda/es/values.js","./valuesIn.js":"node_modules/ramda/es/valuesIn.js","./view.js":"node_modules/ramda/es/view.js","./when.js":"node_modules/ramda/es/when.js","./where.js":"node_modules/ramda/es/where.js","./whereEq.js":"node_modules/ramda/es/whereEq.js","./without.js":"node_modules/ramda/es/without.js","./xprod.js":"node_modules/ramda/es/xprod.js","./zip.js":"node_modules/ramda/es/zip.js","./zipObj.js":"node_modules/ramda/es/zipObj.js","./zipWith.js":"node_modules/ramda/es/zipWith.js","./thunkify.js":"node_modules/ramda/es/thunkify.js"}],"src/model.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+var _mithrilStream = _interopRequireDefault(require("mithril-stream"));
+
+var _ramda = require("ramda");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var log = function log(m) {
+  return function (v) {
+    console.log(m, v);
+    return v;
+  };
+};
+
+var url = function url() {
+  var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+  return "https://api.punkapi.com/v2/beers/".concat(id);
+};
+
+var beerProps = [{
+  color: "#1abc9c",
+  key: "pH",
+  value: "ph"
+}, {
+  color: "#3498db",
+  key: "Alcohol By Vol",
+  value: "abv"
+}, {
+  color: "#9b59b6",
+  key: "Int. Bitterness Levels",
+  value: "ibu"
+}, {
+  color: "#34495e",
+  key: "Standard Reference Method",
+  value: "srm"
+}, {
+  color: "#f1c40f",
+  key: "Target Final Gravity",
+  value: "target_fg"
+}, {
+  color: "##2ecc71",
+  key: "Target Original Gravity",
+  value: "target_og"
+}, {
+  color: "#c0392b",
+  key: "European Brewery Convention",
+  value: "ebc"
+}, {
+  color: "#7f8c8d",
+  key: "Attenuation Level",
+  value: "attenuation_level"
+}];
+
+var onError = function onError(mdl, page) {
+  return function (_ref) {
+    var response = _ref.response;
+    mdl.state.errors = (0, _ramda.map)((0, _ramda.props)(["param", "msg"]), response.data);
+    mdl.state.data[page] = undefined;
+  };
+};
+
+var onSuccess = function onSuccess(mdl, page) {
+  return function (data) {
+    mdl.state.errors = undefined;
+    mdl.state.data[page] = data;
+  };
+};
+
+var pagination = {
+  page: 1,
+  per_page: 30
+};
+var comparison = {
+  beerList: {},
+  selections: false,
+  sortBy: "abv",
+  modal: undefined
+};
+var state = {
+  profile: "",
+  isLoading: false,
+  loadingProgress: {
+    max: 0,
+    value: 0
+  },
+  data: {},
+  errors: undefined,
+  view: "cards",
+  current: {
+    beer: undefined,
+    id: undefined
+  }
+};
+
+function onProgress(e) {
+  if (e.lengthComputable) {
+    model.state.loadingProgress.max = e.total;
+    model.state.loadingProgress.value = e.loaded;
+
+    _mithril.default.redraw();
+  }
+}
+
+function onLoad() {
+  return false;
+}
+
+function onLoadStart() {
+  model.state.isLoading = true;
+  return false;
+}
+
+function onLoadEnd() {
+  model.state.isLoading = false;
+  model.state.loadingProgress.max = 0;
+  model.state.loadingProgress.value = 0;
+  return false;
+}
+
+var xhrProgress = {
+  config: function config(xhr) {
+    console.log(xhr);
+    xhr.onprogress = onProgress;
+    xhr.onload = onLoad;
+    xhr.onloadstart = onLoadStart;
+    xhr.onloadend = onLoadEnd;
+  }
+};
+
+var http = function http(url, params) {
+  return _mithril.default.request(Object.assign(_objectSpread({
+    url: url,
+    params: params
+  }, {
+    xhrProgress: xhrProgress
+  })));
+};
+
+var Model = {
+  http: http,
+  log: log,
+  url: url,
+  state: state,
+  pagination: pagination,
+  comparison: comparison,
+  props: beerProps,
+  onSuccess: onSuccess,
+  onError: onError
+};
+var _default = Model;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js","mithril-stream":"node_modules/mithril-stream/stream.mjs","ramda":"node_modules/ramda/es/index.js"}],"src/Components/Pagination/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Pagination = function Pagination(_ref) {
+  var _ref$attrs = _ref.attrs,
+      mdl = _ref$attrs.mdl,
+      load = _ref$attrs.load;
+
+  var pageBack = function pageBack(mdl) {
+    mdl.pagination.page == 1 ? mdl.pagination.page : mdl.pagination.page--;
+    load();
+  };
+
+  var pageForward = function pageForward(mdl) {
+    console.log('heres', mdl);
+    mdl.state.data.length == 0 ? mdl.pagination.page : mdl.pagination.page++;
+    load();
+  };
+
+  return {
+    view: function view(_ref2) {
+      var mdl = _ref2.attrs.mdl;
+      return (0, _mithril.default)(".pagination", [(0, _mithril.default)("button.btn", {
+        disabled: mdl.pagination.page == 1,
+        onclick: function onclick() {
+          return pageBack(mdl);
+        }
+      }, "Prev"), (0, _mithril.default)("input.input[type=number]", {
+        value: mdl.pagination.per_page,
+        min: 0,
+        max: 80,
+        onchange: function onchange(e) {
+          return mdl.pagination.per_page = e.target.value;
+        }
+      }), (0, _mithril.default)("button.btn", {
+        disabled: mdl.state.data.length == 0,
+        onclick: function onclick() {
+          return pageForward(mdl);
+        }
+      }, "Next")]);
+    }
+  };
+};
+
+var _default = Pagination;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js"}],"src/Components/Actions.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+var _index = _interopRequireDefault(require("./Pagination/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Actions = {
+  view: function view(_ref) {
+    var _ref$attrs = _ref.attrs,
+        mdl = _ref$attrs.mdl,
+        load = _ref$attrs.load;
+    return !mdl.comparison.selections && !mdl.state.current.beer && (0, _mithril.default)("header.container.actions", // mdl.comparison.selections || mdl.state.current.beer
+    //   ? m(
+    //       "button.btn",
+    //       {
+    //         onclick: () => {
+    //           mdl.comparison.beerList = {}
+    //           mdl.comparison.selections = false
+    //         }
+    //       },
+    //       "Back to List"
+    //     )
+    // :
+    [mdl.state.view == "cards" && [(0, _mithril.default)("button.btn", {
+      disabled: !Object.values(mdl.comparison.beerList).includes(true),
+      onclick: function onclick() {
+        return mdl.comparison.selections = true;
+      }
+    }, "Compare Selected"), (0, _mithril.default)("select.select", {
+      onchange: function onchange(e) {
+        return mdl.comparison.sortBy = e.target.value;
+      },
+      value: mdl.comparison.sortBy
+    }, mdl.props.map(function (prop, key) {
+      return (0, _mithril.default)("option", {
+        key: key,
+        value: prop.value
+      }, prop.key);
+    }))], (0, _mithril.default)(_index.default, {
+      mdl: mdl,
+      load: load
+    }), (0, _mithril.default)("select.select", {
+      onchange: function onchange(e) {
+        return mdl.state.view = e.target.value;
+      },
+      value: mdl.state.view
+    }, [(0, _mithril.default)("option.option", {
+      value: "cards"
+    }, "Card View"), (0, _mithril.default)("option.option", {
+      value: "charts"
+    }, "Charts View")]), mdl.state.view == "charts" && [(0, _mithril.default)("ul.action-radios", mdl.props.map(function (prop, key) {
+      return (0, _mithril.default)(".", [(0, _mithril.default)("input[type=radio].charts-radio", {
+        key: key,
+        name: prop.value,
+        value: prop.value,
+        id: prop.value,
+        checked: prop.checked,
+        onclick: function onclick() {
+          return prop.checked = !prop.checked;
+        }
+      }), (0, _mithril.default)("label.radio-label", {
+        key: key,
+        for: prop.value
+      }, prop.key)]);
+    }))]]);
+  }
+};
+var _default = Actions;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js","./Pagination/index.js":"src/Components/Pagination/index.js"}],"src/Pages/Beers/Charts.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20126,7 +20161,7 @@ var Charts = function Charts() {
 
 var _default = Charts;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beers/BeerProfiles.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","ramda":"node_modules/ramda/es/index.js"}],"src/Components/BeerProfile.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20138,43 +20173,44 @@ var _mithril = _interopRequireDefault(require("mithril"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var bar = function bar() {
+  return {
+    view: function view(_ref) {
+      var _ref$attrs = _ref.attrs,
+          label = _ref$attrs.label,
+          value = _ref$attrs.value;
+      return (0, _mithril.default)(".barchart-container", (0, _mithril.default)(".barchart-data", {
+        style: {
+          width: "".concat(value, "%")
+        }
+      }, (0, _mithril.default)("label.barchart-label", label)));
+    }
+  };
+};
+
 var BeerProfile = {
-  view: function view(_ref) {
-    var beer = _ref.attrs.beer;
+  view: function view(_ref2) {
+    var beer = _ref2.attrs.beer;
     return (0, _mithril.default)(".beer-profile", [(0, _mithril.default)(".cell.row", [(0, _mithril.default)("img.img", {
       id: 1,
       src: beer.image_url
-    }), (0, _mithril.default)(".cell.col", [(0, _mithril.default)("code.cell.info", "ABV: ", beer.abv, "%"), (0, _mithril.default)("progress.cell", {
-      value: beer.abv,
-      max: 100
-    }), (0, _mithril.default)("code.cell.info", "IBU: ", beer.ibu), (0, _mithril.default)("progress.cell", {
-      value: beer.ibu,
-      max: 100
-    }), (0, _mithril.default)("code.cell.info", "pH: ", beer.ph), (0, _mithril.default)("progress.cell", {
-      value: beer.ph,
-      max: 100
-    }), (0, _mithril.default)("code.cell.info", "SRM: ", beer.srm), (0, _mithril.default)("progress.cell", {
-      value: beer.srm,
-      max: 100
+    }), (0, _mithril.default)(".cell.col", [(0, _mithril.default)(bar, {
+      label: "ABV:",
+      value: beer.abv
+    }), (0, _mithril.default)(bar, {
+      label: "IBU:",
+      value: beer.ibu
+    }), (0, _mithril.default)(bar, {
+      label: "pH:",
+      value: beer.ph
+    }), (0, _mithril.default)(bar, {
+      label: "SRM:",
+      value: beer.srm
     })])]), (0, _mithril.default)(".cell", (0, _mithril.default)("span.name", beer.name)), (0, _mithril.default)(".cell.tagline", beer.tagline)]);
   }
 };
 exports.BeerProfile = BeerProfile;
-var BeerProfiles = {
-  view: function view(_ref2) {
-    var _ref2$attrs = _ref2.attrs,
-        mdl = _ref2$attrs.mdl,
-        beers = _ref2$attrs.beers;
-    return (0, _mithril.default)(".container.compare-beers", beers.map(function (beer) {
-      return (0, _mithril.default)(BeerProfile, {
-        mdl: mdl,
-        beer: beer,
-        key: beer.id
-      });
-    }));
-  }
-};
-var _default = BeerProfiles;
+var _default = BeerProfile;
 exports.default = _default;
 },{"mithril":"node_modules/mithril/index.js"}],"src/Pages/Beers/BeerCard.js":[function(require,module,exports) {
 "use strict";
@@ -20226,10 +20262,8 @@ var BeerCard = function BeerCard() {
       })), (0, _mithril.default)(".footer", (0, _mithril.default)(".row", [(0, _mithril.default)(_mithril.default.route.Link, {
         class: "link",
         href: "/beer/".concat(dasher(name)),
-        options: {
-          params: {
-            key: key
-          }
+        onclick: function onclick() {
+          return mdl.state.current.id = key;
         }
       }, (0, _mithril.default)(".info.name", name))]), showInfo && [(0, _mithril.default)("cell.row", {
         onmousedown: function onmousedown() {
@@ -20255,13 +20289,11 @@ exports.default = void 0;
 
 var _mithril = _interopRequireDefault(require("mithril"));
 
-var _BeerProfiles = _interopRequireWildcard(require("./BeerProfiles.js"));
+var _BeerProfile = _interopRequireDefault(require("../../Components/BeerProfile.js"));
 
 var _BeerCard = _interopRequireDefault(require("./BeerCard.js"));
 
 var _ramda = require("ramda");
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -20277,19 +20309,33 @@ var byComparison = function byComparison(ids) {
   };
 };
 
-var BeerList = {
+var CompareBeers = {
   view: function view(_ref) {
     var _ref$attrs = _ref.attrs,
         mdl = _ref$attrs.mdl,
         beers = _ref$attrs.beers;
-    return (0, _mithril.default)(".cards.container", beers.map(function (_ref2) {
-      var name = _ref2.name,
-          abv = _ref2.abv,
-          ibu = _ref2.ibu,
-          ph = _ref2.ph,
-          srm = _ref2.srm,
-          image_url = _ref2.image_url,
-          id = _ref2.id;
+    return (0, _mithril.default)(".container.compare-beers", beers.map(function (beer) {
+      return (0, _mithril.default)(_BeerProfile.default, {
+        mdl: mdl,
+        beer: beer,
+        key: beer.id
+      });
+    }));
+  }
+};
+var BeerList = {
+  view: function view(_ref2) {
+    var _ref2$attrs = _ref2.attrs,
+        mdl = _ref2$attrs.mdl,
+        beers = _ref2$attrs.beers;
+    return (0, _mithril.default)(".cards.container", beers.map(function (_ref3) {
+      var name = _ref3.name,
+          abv = _ref3.abv,
+          ibu = _ref3.ibu,
+          ph = _ref3.ph,
+          srm = _ref3.srm,
+          image_url = _ref3.image_url,
+          id = _ref3.id;
       return (0, _mithril.default)(_BeerCard.default, {
         mdl: mdl,
         name: name,
@@ -20304,20 +20350,21 @@ var BeerList = {
   }
 };
 
-var Cards = function Cards() {
+var Cards = function Cards(_ref4) {
+  var mdl = _ref4.attrs.mdl;
   return {
-    view: function view(_ref3) {
-      var _ref3$attrs = _ref3.attrs,
-          mdl = _ref3$attrs.mdl,
-          sortedByProp = _ref3$attrs.sortedByProp;
-      return [[mdl.comparison.modal && (0, _mithril.default)(".compare-beers.modal", (0, _mithril.default)(_BeerProfiles.BeerProfile, {
-        beer: (0, _ramda.head)(mdl.state.data.filter((0, _ramda.propEq)("id", mdl.comparison.modal)))
-      }))], mdl.comparison.selections ? (0, _mithril.default)(_BeerProfiles.default, {
+    view: function view(_ref5) {
+      var _ref5$attrs = _ref5.attrs,
+          mdl = _ref5$attrs.mdl,
+          sortedByProp = _ref5$attrs.sortedByProp;
+      return [[mdl.comparison.modal && (0, _mithril.default)(".compare-beers.modal", (0, _mithril.default)(_BeerProfile.default, {
+        beer: (0, _ramda.head)(mdl.state.data.beers.filter((0, _ramda.propEq)("id", mdl.comparison.modal)))
+      }))], mdl.comparison.selections ? (0, _mithril.default)(CompareBeers, {
         mdl: mdl,
-        beers: mdl.state.data.filter(byComparison(mdl.comparison.beerList))
+        beers: mdl.state.data.beers.filter(byComparison(mdl.comparison.beerList))
       }) : (0, _mithril.default)(BeerList, {
         mdl: mdl,
-        beers: sortedByProp(mdl.state.data)
+        beers: sortedByProp(mdl.state.data.beers)
       })];
     }
   };
@@ -20325,7 +20372,7 @@ var Cards = function Cards() {
 
 var _default = Cards;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","./BeerProfiles.js":"src/Pages/Beers/BeerProfiles.js","./BeerCard.js":"src/Pages/Beers/BeerCard.js","ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beers/model.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","../../Components/BeerProfile.js":"src/Components/BeerProfile.js","./BeerCard.js":"src/Pages/Beers/BeerCard.js","ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beers/model.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20366,7 +20413,7 @@ exports.default = void 0;
 
 var _mithril = _interopRequireDefault(require("mithril"));
 
-var _Actions = _interopRequireDefault(require("./Actions.js"));
+var _Actions = _interopRequireDefault(require("../../Components/Actions.js"));
 
 var _Charts = _interopRequireDefault(require("./Charts.js"));
 
@@ -20378,34 +20425,19 @@ var _ramda = require("ramda");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var onError = function onError(mdl) {
-  return function (_ref) {
-    var response = _ref.response;
-    mdl.state.errors = (0, _ramda.map)((0, _ramda.props)(["param", "msg"]), response.data);
-    mdl.state.data = undefined;
-  };
-};
-
-var onSuccess = function onSuccess(mdl) {
-  return function (data) {
-    mdl.state.errors = undefined;
-    mdl.state.data = data;
-  };
-};
-
-var Beers = function Beers(_ref2) {
-  var mdl = _ref2.attrs.mdl;
+var Beers = function Beers(_ref) {
+  var mdl = _ref.attrs.mdl;
 
   var load = function load() {
-    return (0, _model.getBeers)(mdl)(mdl.pagination).then(onSuccess(mdl), onError(mdl));
+    return (0, _model.getBeers)(mdl)(mdl.pagination).then(mdl.onSuccess(mdl, "beers"), mdl.onError(mdl, "beers"));
   };
 
   return {
     oninit: load,
-    view: function view(_ref3) {
-      var mdl = _ref3.attrs.mdl;
+    view: function view(_ref2) {
+      var mdl = _ref2.attrs.mdl;
 
-      if (mdl.state.data) {
+      if (mdl.state.data.beers) {
         var sortedByProp = (0, _ramda.sortBy)((0, _ramda.prop)(mdl.comparison.sortBy));
         return [(0, _mithril.default)(_Actions.default, {
           mdl: mdl,
@@ -20415,7 +20447,7 @@ var Beers = function Beers(_ref2) {
           sortedByProp: sortedByProp
         }) : (0, _mithril.default)(_Charts.default, {
           mdl: mdl,
-          data: mdl.state.data
+          data: mdl.state.data.beers
         })];
       }
     }
@@ -20424,7 +20456,51 @@ var Beers = function Beers(_ref2) {
 
 var _default = Beers;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","./Actions.js":"src/Pages/Beers/Actions.js","./Charts.js":"src/Pages/Beers/Charts.js","./Cards.js":"src/Pages/Beers/Cards.js","./model.js":"src/Pages/Beers/model.js","ramda":"node_modules/ramda/es/index.js"}],"src/App.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","../../Components/Actions.js":"src/Components/Actions.js","./Charts.js":"src/Pages/Beers/Charts.js","./Cards.js":"src/Pages/Beers/Cards.js","./model.js":"src/Pages/Beers/model.js","ramda":"node_modules/ramda/es/index.js"}],"src/Pages/Beer/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _mithril = _interopRequireDefault(require("mithril"));
+
+var _BeerProfile = _interopRequireDefault(require("../../Components/BeerProfile.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Beer = function Beer(_ref) {
+  var mdl = _ref.attrs.mdl;
+
+  var load = function load() {
+    return mdl.http(mdl.url(mdl.state.current.id)).then(function (data) {
+      mdl.onSuccess(mdl, "beer")(data);
+      console.log(mdl.state.data.beer[0]);
+    }, mdl.onError(mdl, "beer"));
+  };
+
+  return {
+    oninit: load,
+    view: function view(_ref2) {
+      var mdl = _ref2.attrs.mdl;
+      return mdl.state.data.beer && (0, _mithril.default)(".beer-container", [(0, _mithril.default)(_BeerProfile.default, {
+        mdl: mdl,
+        beer: mdl.state.data.beer[0],
+        key: mdl.state.current.id
+      })]);
+    },
+    onremove: function onremove() {
+      mdl.state.current.beer = undefined;
+      mdl.state.data.beer = undefined;
+      mdl.state.current.id = undefined;
+    }
+  };
+};
+
+var _default = Beer;
+exports.default = _default;
+},{"mithril":"node_modules/mithril/index.js","../../Components/BeerProfile.js":"src/Components/BeerProfile.js"}],"src/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20435,6 +20511,8 @@ exports.default = void 0;
 var _mithril = _interopRequireDefault(require("mithril"));
 
 var _index = _interopRequireDefault(require("./Pages/Beers/index.js"));
+
+var _index2 = _interopRequireDefault(require("./Pages/Beer/index.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -20454,7 +20532,14 @@ var Errors = function Errors(_ref) {
 var Header = {
   view: function view(_ref2) {
     var mdl = _ref2.attrs.mdl;
-    return (0, _mithril.default)(".header", []);
+    return (mdl.comparison.selections || mdl.state.current.beer) && (0, _mithril.default)("header.container.actions", [(0, _mithril.default)("button.btn", {
+      onclick: function onclick() {
+        mdl.comparison.beerList = {};
+        mdl.comparison.selections = false;
+
+        _mithril.default.route.set("/beers");
+      }
+    }, "Back to List")]);
   }
 };
 var Body = {
@@ -20489,11 +20574,15 @@ var App = function App(mdl) {
         }));
       }
     },
-    "/beer/:key": {
+    "/beer/:name": {
+      onmatch: function onmatch(_ref5) {
+        var name = _ref5.name;
+        mdl.state.current.id ? mdl.state.current.beer = name : _mithril.default.route.set("/beers");
+      },
       render: function render() {
         return (0, _mithril.default)(Layout, {
           mdl: mdl
-        }, (0, _mithril.default)(Beer, {
+        }, (0, _mithril.default)(_index2.default, {
           mdl: mdl
         }));
       }
@@ -20503,7 +20592,7 @@ var App = function App(mdl) {
 
 var _default = App;
 exports.default = _default;
-},{"mithril":"node_modules/mithril/index.js","./Pages/Beers/index.js":"src/Pages/Beers/index.js"}],"../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","./Pages/Beers/index.js":"src/Pages/Beers/index.js","./Pages/Beer/index.js":"src/Pages/Beer/index.js"}],"../../../../.config/yarn/global/node_modules/parcel/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -20535,7 +20624,7 @@ function getBaseURL(url) {
 
 exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
-},{}],"../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+},{}],"../../../../.config/yarn/global/node_modules/parcel/src/builtins/css-loader.js":[function(require,module,exports) {
 var bundle = require('./bundle-url');
 
 function updateLink(link) {
@@ -20570,12 +20659,12 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":"../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"index.scss":[function(require,module,exports) {
+},{"./bundle-url":"../../../../.config/yarn/global/node_modules/parcel/src/builtins/bundle-url.js"}],"index.scss":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":"../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/css-loader.js"}],"index.js":[function(require,module,exports) {
+},{"_css_loader":"../../../../.config/yarn/global/node_modules/parcel/src/builtins/css-loader.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _mithril = _interopRequireDefault(require("mithril"));
@@ -20623,7 +20712,7 @@ checkWidth();
 var root = document.body;
 
 _mithril.default.route(root, "/beers", (0, _App.default)(_model.default));
-},{"mithril":"node_modules/mithril/index.js","./src/model.js":"src/model.js","./src/App.js":"src/App.js","./index.scss":"index.scss"}],"../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"mithril":"node_modules/mithril/index.js","./src/model.js":"src/model.js","./src/App.js":"src/App.js","./index.scss":"index.scss"}],"../../../../.config/yarn/global/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -20651,7 +20740,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64490" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58097" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -20826,5 +20915,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
+},{}]},{},["../../../../.config/yarn/global/node_modules/parcel/src/builtins/hmr-runtime.js","index.js"], null)
 //# sourceMappingURL=/brew-dog.e31bb0bc.js.map

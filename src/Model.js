@@ -1,14 +1,15 @@
 import m from "mithril"
 import Stream from "mithril-stream"
+import { sortBy, prop, props, map } from "ramda"
 
-const log = m => v => {
+const log = (m) => (v) => {
   console.log(m, v)
   return v
 }
 
 const url = (id = "") => `https://api.punkapi.com/v2/beers/${id}`
 
-const props = [
+const beerProps = [
   { color: "#1abc9c", key: "pH", value: "ph" },
   { color: "#3498db", key: "Alcohol By Vol", value: "abv" },
   { color: "#9b59b6", key: "Int. Bitterness Levels", value: "ibu" },
@@ -16,19 +17,29 @@ const props = [
   { color: "#f1c40f", key: "Target Final Gravity", value: "target_fg" },
   { color: "##2ecc71", key: "Target Original Gravity", value: "target_og" },
   { color: "#c0392b", key: "European Brewery Convention", value: "ebc" },
-  { color: "#7f8c8d", key: "Attenuation Level", value: "attenuation_level" },
+  { color: "#7f8c8d", key: "Attenuation Level", value: "attenuation_level" }
 ]
+
+const onError = (mdl, page) => ({ response }) => {
+  mdl.state.errors = map(props(["param", "msg"]), response.data)
+  mdl.state.data[page] = undefined
+}
+
+const onSuccess = (mdl, page) => (data) => {
+  mdl.state.errors = undefined
+  mdl.state.data[page] = data
+}
 
 const pagination = {
   page: 1,
-  per_page: 30,
+  per_page: 30
 }
 
 const comparison = {
   beerList: {},
   selections: false,
   sortBy: "abv",
-  modal: undefined,
+  modal: undefined
 }
 
 const state = {
@@ -36,11 +47,15 @@ const state = {
   isLoading: false,
   loadingProgress: {
     max: 0,
-    value: 0,
+    value: 0
   },
-  data: undefined,
+  data: {},
   errors: undefined,
   view: "cards",
+  current: {
+    beer: undefined,
+    id: undefined
+  }
 }
 
 function onProgress(e) {
@@ -67,16 +82,17 @@ function onLoadEnd() {
 }
 
 const xhrProgress = {
-  config: xhr => {
+  config: (xhr) => {
     console.log(xhr)
     xhr.onprogress = onProgress
     xhr.onload = onLoad
     xhr.onloadstart = onLoadStart
     xhr.onloadend = onLoadEnd
-  },
+  }
 }
 
-const http = (url, params) => m.request({ url, params, ...{ xhrProgress } })
+const http = (url, params) =>
+  m.request(Object.assign({ url, params, ...{ xhrProgress } }))
 
 const Model = {
   http,
@@ -85,7 +101,9 @@ const Model = {
   state,
   pagination,
   comparison,
-  props,
+  props: beerProps,
+  onSuccess,
+  onError
 }
 
 export default Model

@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mithril": "^2.0.0-rc.8",
+    "mithril": "^2.0.1",
     "mithril-stream": "^2.0.0",
     "ramda": "^0.26.1"
   },

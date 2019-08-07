@@ -1,6 +1,6 @@
 import m from "mithril"
 
-const dasher = str => str.replace(/\s/g, "")
+const dasher = (str) => str.replace(/\s/g, "")
 
 const BeerCard = () => {
   let showInfo = false
@@ -9,8 +9,8 @@ const BeerCard = () => {
       return m(
         ".beer-card",
         {
-          onmouseover: e => (showInfo = true),
-          onmouseout: e => (showInfo = false),
+          onmouseover: (e) => (showInfo = true),
+          onmouseout: (e) => (showInfo = false)
         },
         [
           [
@@ -19,7 +19,7 @@ const BeerCard = () => {
               name: `checkbox-${key}`,
               onclick: () =>
                 (mdl.comparison.beerList[key] = !mdl.comparison.beerList[key]),
-              checked: mdl.comparison.beerList[key],
+              checked: mdl.comparison.beerList[key]
             }),
             m(
               "label.label",
@@ -34,34 +34,34 @@ const BeerCard = () => {
                   {
                     class: "link",
                     href: `/beer/${dasher(name)}`,
-                    options: { params: { key } },
+                    onclick: () => (mdl.state.current.id = key)
                   },
                   m(".info.name", name)
-                ),
+                )
               ]),
               showInfo && [
                 m(
                   "cell.row",
                   {
                     onmousedown: () => (mdl.comparison.modal = key),
-                    onmouseup: () => (mdl.comparison.modal = undefined),
+                    onmouseup: () => (mdl.comparison.modal = undefined)
                   },
                   [
                     m("code.cell.info", "ABV: ", abv, "%"),
-                    m("code.cell.info", "IBU: ", ibu),
+                    m("code.cell.info", "IBU: ", ibu)
                   ]
                 ),
                 m("cell.row", [
                   m("code.cell.info", "pH: ", ph),
-                  m("code.cell.info", "SRM: ", srm),
-                ]),
+                  m("code.cell.info", "SRM: ", srm)
+                ])
               ]
-            ),
+            )
           ],
           ,
         ]
       )
-    },
+    }
   }
 }
 
